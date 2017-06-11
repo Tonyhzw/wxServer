@@ -56,7 +56,7 @@ app.get('/addCart',function(req,res){
   })
 })
 app.get('/borrowBooks',function(req,res){
-  var userId = req.query.userId, searchType = req.query.searchType,,sql = "";
+  var userId = req.query.userId, searchType = req.query.searchType,sql = "";
   if(searchType == "in"){
     //借入
     sql = "select * from orderTable where userId = "+mysql.escape(userId)+" order by time desc;";
@@ -141,6 +141,7 @@ app.get('/returnBooks',function(req,res){
       })
       res.send({orderList:results});
     })
+  }
 })
 app.get('/historyBooks',function(req,res){
   var userId = req.query.userId, searchType = req.query.searchType,sql = "";
@@ -291,10 +292,10 @@ app.get('/submitOrders',function(req,res){
   var currentTime = moment().local().format("YYYY-MM-DD HH:mm:ss");
 	for(let i = 0; i < bookIdList.length; i++){
 		let uid = factory.uuid(9,10);
-    sql + = "insert into orderTable(orderId,userId,time,addressId) values("+uid+","+mysql.escape(userId)+","+currentTime+","+addressId+");";
-    sql + = "insert into bookOrder(bookId,orderId,orderState) values("+mysql.escape(bookIdList[i])+","+uid+","+"0"+");";
-    sql + = "update book set state = 0  where bookId = "+mysql.escape(bookIdList[i])+";";
-    sql + = "delete from bookCart where userId = "+mysql.escape(userId)+" and bookId = "+mysql.escape(bookIdList[i])+";";
+    sql += "insert into orderTable(orderId,userId,time,addressId) values("+uid+","+mysql.escape(userId)+","+currentTime+","+addressId+");";
+    sql += "insert into bookOrder(bookId,orderId,orderState) values("+mysql.escape(bookIdList[i])+","+uid+","+"0"+");";
+    sql += "update book set state = 0  where bookId = "+mysql.escape(bookIdList[i])+";";
+    sql += "delete from bookCart where userId = "+mysql.escape(userId)+" and bookId = "+mysql.escape(bookIdList[i])+";";
   }
   query(sql,function(err,vals,fields){
       res.send({success:true});
