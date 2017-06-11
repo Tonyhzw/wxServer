@@ -338,7 +338,7 @@ app.get('/deleteOwnAddress',function(req,res){
   })
 })
 app.get('/addAddress',function(req,res){
-  var userId = res.query.userId, newAddress = res.query.newAddress, sql = "";
+  var userId = req.query.userId, newAddress = req.query.newAddress, sql = "";
   var factory = require('./server/uuid.js');
   var uid = factory.uuid(9,10);
   var username = newAddress.userName, provinceName = newAddress.provinceName,
