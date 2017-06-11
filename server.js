@@ -343,8 +343,8 @@ app.get('/addAddress',function(req,res){
   var uid = factory.uuid(9,10);
   var username = newAddress.userName, provinceName = newAddress.provinceName,
   postalCode = newAddress.postalCode, cityName = newAddress.cityName, countyName = newAddress.countyName,
-  detailInfo = newAddress.detailInfo, nationalCode = newAddress.nationalCode, telNumber = newAddress.telNumber;
-  sql = "insert into address(addressId,userId,username,provinceName,postalCode,cityName,countyName,detailInfo,nationalCode,telNumber,default) values("+
+  detailInfo = newAddress.detailInfo, nationalCode = newAddress.nationalCode, telNumber = newAddress.telNumber,isDefault = newAddress.isDefault;
+  sql = "insert into address(addressId,userId,username,provinceName,postalCode,cityName,countyName,detailInfo,nationalCode,telNumber,isDefault) values("+
   mysql.escape(uid)+","+mysql.escape(userId)+","+mysql.escape(username)+","+mysql.escape(provinceName)+","+mysql.escape(postalCode)+","+mysql.escape(cityName)+
   ","+mysql.escape(countyName)+","+mysql.escape(detailInfo)+","+mysql.escape(nationalCode)+","+mysql.escape(telNumber)+","+"0);"
   query(sql,function(err,vals,fields){
