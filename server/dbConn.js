@@ -4,7 +4,7 @@ var pool = mysql.createPool({
     user: 'root',
     multipleStatements:true,
     password: 'newpass',
-    database: 'blogs',
+    database: 'wxapp',
     port: 3306
 });
 

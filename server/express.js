@@ -13,7 +13,10 @@ function Express(){
             if(status=="200"){
               var Success = data.Success,Shippers = data.Shippers;
               if(Success){
-                if(Shippers.length>0) resolve();
+                if(Shippers.length>0) resolve(Shippers[0]);
+                else reject();
+              }else {
+                reject();
               }
             }
             else 	reject();
@@ -33,10 +36,10 @@ function Express(){
             var Success = data.Success,state = data.State,trace=data.Traces;
             //物流状态: 0-无轨迹 2-在途中，3-签收,4-问题件
             if(Success){
-              resolve({state:state,trace:trace});
+              resolve({sucess:true,state:state,trace:trace});
             }
           }
-          else 	reject();
+          else 	reject({success:false});
         });
       })
     }
