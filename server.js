@@ -186,7 +186,7 @@ app.get('/getOrderAddress',function(req,res){
   if(type="寄回"){
     //返回书籍所有者的地址
     sql = "select address.* from address,book,bookOrder where bookOrder.bookOrderId = "+mysql.escape(bookOrderId)+
-    " bookOrder.bookId = book.bookId and book.userId = address.userId and address.default = 1;"
+    " bookOrder.bookId = book.bookId and book.userId = address.userId and address.isDefault = 1;"
     query(sql,function(err,vals,fields){
       results.push({success:true,info:vals});
     })
@@ -281,7 +281,7 @@ app.get('getCart',function(req,res){
 })
 app.get('/getDefaultAddress',function(req,res){
   var userId = req.query.userId;
-  sql = "select * from address where userId = "+mysql.escape(userId)+" and default = 1;";
+  sql = "select * from address where userId = "+mysql.escape(userId)+" and isDefault = 1;";
   query(sql,function(err,vals,fields){
     res.send({success:true,address:vals})
   })
@@ -324,8 +324,8 @@ app.get('/getOwnAddress',function(req,res){
 })
 app.get('/changeDefaultAddress',function(req,res){
   var userId = req.query.userId, prevId = req.query.prevIndex,curId = req.query.curIndex,sql = "";
-  sql = "update address set default = 0  where addressId = "+mysql.escape(prevId)+";";
-  sql += "update address set default = 1 where addressId = "+mysql.escape(curId)+";";
+  sql = "update address set isDefault = 0  where addressId = "+mysql.escape(prevId)+";";
+  sql += "update address set isDefault = 1 where addressId = "+mysql.escape(curId)+";";
   query(sql,function(err,vals,fields){
     res.send({success:true});
   })
