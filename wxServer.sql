@@ -29,11 +29,11 @@ CREATE TABLE `address` (
   `provinceName` char(20) COLLATE utf8_unicode_ci DEFAULT NULL,
   `postalCode` int(11) DEFAULT NULL,
   `cityName` char(20) COLLATE utf8_unicode_ci DEFAULT NULL,
-  `countryName` char(30) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `countyName` char(30) COLLATE utf8_unicode_ci DEFAULT NULL,
   `detailInfo` text COLLATE utf8_unicode_ci,
-  `nationCode` int(11) DEFAULT NULL,
-  `telNumber` int(11) DEFAULT NULL,
-  `default` int(11) DEFAULT '0',
+  `nationalCode` int(11) DEFAULT NULL,
+  `telNumber` varchar(11) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `isDefault` int(11) DEFAULT '0',
   PRIMARY KEY (`addressId`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -44,6 +44,7 @@ CREATE TABLE `address` (
 
 LOCK TABLES `address` WRITE;
 /*!40000 ALTER TABLE `address` DISABLE KEYS */;
+INSERT INTO `address` VALUES (347873902,1,'何','北京市',100043,'北京市','石景山区','玉泉路19号甲(近玉泉路地铁口)',110107,'13020048977',0);
 /*!40000 ALTER TABLE `address` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -219,4 +220,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2017-06-11 16:29:02
+-- Dump completed on 2017-06-11 22:20:50
