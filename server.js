@@ -384,7 +384,20 @@ app.post('/addBooks',upload.single('file'),function(req,res){
    }
  })
 })
-
+app.get('/getCode',function(req,res){
+  var userId = req.query.userId, type = req.query.type, sql = "";
+  sql = "select * from user where userId = "+mysql.escape(userId)+" and type = "+mysql.escape(type)+";";
+  query(sql,function(err,vals,fields){
+    if(vals.length==1){
+      var factory = require('./server/uuid.js');
+      var code = factory.uuid(6,16),uuid =factory.uuid(9,10) ;
+      sql = "insert into invite(inviteId,userId,code) values("+mysql.escape(uuid)+","+mysql.escape(userId)+","+mysql.escape(code)+");";
+      query(sql,function(err,vals,fields){
+          res.json({success:true,code:code});
+      })
+    }
+  })
+})
 // respond with "hello world" when a GET request is made to the homepage
 app.get('/', function(req, res) {
   res.send('hello world');
