@@ -362,11 +362,12 @@ app.post('/addBooks',upload.single('file'),function(req,res){
   var bookName = req.body.bookName, brefInfo = req.body.brefInfo, name = req.body.name, userId = req.body.userId, sql = "";
   /** When using the "single"
      data come in "req.file" regardless of the attribute "name". **/
- var tmp_path = req.file.path;
+ //var tmp_path = req.file.path;
  var fs = require('fs');
  /** The original name of the uploaded file
      stored in the variable "originalname". **/
  var target_path = 'uploads/' + req.file.originalname;
+ var path = require('path');
  fs.writeFile(path.resolve(target_path),req.file.buffer,function(err){
    if(err){
      res.send({success:false});
