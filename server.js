@@ -358,7 +358,9 @@ app.get('/addAddress',function(req,res){
   })
 })
 app.post('/addBooks',function(req,res){
-  var bookName = req.body.bookName, brefInfo = req.body.brefInfo, name = req.body.name, userId = req.body.userId, sql = "";
+  console.log(req);
+  var formData= JSON.parse(req.body.formData);
+  var bookName = formData.bookName, brefInfo = formData.brefInfo, name = formData.name, userId = formData.userId, sql = "";
   req.busboy.on('file', function (fieldname, file, filename, encoding, mimetype) {
         var dataArr = [], len = 0,strBase64;
         file.on("data", function (chunk){
@@ -381,9 +383,6 @@ app.post('/addBooks',function(req,res){
     req.pipe(req.busboy);
 
    req.pipe(req.busboy);
-})
-app.get('/addBooks',function(req,res){
-
 })
 // respond with "hello world" when a GET request is made to the homepage
 app.get('/', function(req, res) {
