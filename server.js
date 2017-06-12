@@ -1,10 +1,15 @@
 var express = require('express');
 var app = express();
-var busboy  = require('connect-busboy');
+//var busboy  = require('connect-busboy');
 var query = require('./server/dbConn.js');
 var mysql=require("mysql");
+var multer  = require('multer')
+//var bodyParser = require('body-parser');
+var upload = multer(); 
+//app.use(busboy({ immediate: true }));
 
-app.use(busboy({ immediate: true }));
+//app.use(bodyParser.urlencoded({extended: true}));
+//app.use(bodyParser.json());
 
 //登陆鉴权
 app.get('/checkAuth',function(req,res){
@@ -357,10 +362,10 @@ app.get('/addAddress',function(req,res){
     res.send({success:true,addressId:uid});
   })
 })
-app.post('/addBooks',function(req,res){
-  console.log(req.body);
+app.post('/addBooks',upload.single('file'),function(req,res){
+  console.log(req.body,req.file);
   var bookName = req.body.bookName, brefInfo = req.body.brefInfo, name = req.body.name, userId = req.body.userId, sql = "";
-  req.busboy.on('file', function (fieldname, file, filename, encoding, mimetype) {
+  /*req.busboy.on('file', function (fieldname, file, filename, encoding, mimetype) {
         var dataArr = [], len = 0,strBase64;
         file.on("data", function (chunk){
             dataArr.push(chunk);
@@ -380,7 +385,7 @@ app.post('/addBooks',function(req,res){
     });
 
     req.pipe(req.busboy);
-
+    */
 })
 
 // respond with "hello world" when a GET request is made to the homepage
