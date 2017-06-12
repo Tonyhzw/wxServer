@@ -1,7 +1,10 @@
 var express = require('express');
 var app = express();
+var busboy  = require('connect-busboy');
 var query = require('./server/dbConn.js');
 var mysql=require("mysql");
+
+app.use(busboy({ immediate: true }));
 
 //登陆鉴权
 app.get('/checkAuth',function(req,res){
@@ -353,6 +356,34 @@ app.get('/addAddress',function(req,res){
   query(sql,function(err,vals,fields){
     res.send({success:true,addressId:uid});
   })
+})
+app.post('/addBooks',function(req,res){
+  var bookName = req.body.bookName, brefInfo = req.body.brefInfo, name = req.body.name, userId = req.body.userId, sql = "";
+  req.busboy.on('file', function (fieldname, file, filename, encoding, mimetype) {
+        var dataArr = [], len = 0,strBase64;
+        file.on("data", function (chunk){
+            dataArr.push(chunk);
+            len += chunk.length;
+        });
+        file.on("end", function () {
+            strBase64 = Buffer.concat( dataArr, len ).toString('base64');
+            var factory = require('./server/uuid.js');
+            var uid = factory.uuid(9,10);
+            sql = "insert into book(bookId,bookName,brefInfo,imgUrl,userId,state) values("+mysql.escape(uid)+","+
+            mysql.escape(bookName)+","+mysql.escape(brefInfo)+","+mysql.escape(strBase64)+","+mysql.escape(userId)+",2);";
+            query(sql,function(err,vals,fields){
+              res.send({success:true});
+            })
+        });
+
+    });
+
+    req.pipe(req.busboy);
+
+   req.pipe(req.busboy);
+})
+app.get('/addBooks',function(req,res){
+
 })
 // respond with "hello world" when a GET request is made to the homepage
 app.get('/', function(req, res) {
