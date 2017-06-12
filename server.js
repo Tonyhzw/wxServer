@@ -5,6 +5,8 @@ var mysql=require("mysql");
 var multer  = require('multer')
 var upload = multer();
 
+app.use(express.static('uploads'));
+
 //登陆鉴权
 app.get('/checkAuth',function(req,res){
   var nickname =  req.query.nickname;
@@ -375,7 +377,7 @@ app.post('/addBooks',upload.single('file'),function(req,res){
      var factory = require('./server/uuid.js');
      var uid = factory.uuid(9,10);
      sql = "insert into book(bookId,bookName,brefInfo,imgUrl,userId,state) values("+mysql.escape(uid)+","+
-     mysql.escape(bookName)+","+mysql.escape(brefInfo)+","+mysql.escape(target_path)+","+mysql.escape(userId)+",2);";
+     mysql.escape(bookName)+","+mysql.escape(brefInfo)+","+mysql.escape(req.file.originalname)+","+mysql.escape(userId)+",2);";
      query(sql,function(err,vals,fields){
        res.json({success:true})
      })
