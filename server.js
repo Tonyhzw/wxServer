@@ -371,14 +371,15 @@ app.post('/addBooks',upload.single('file'),function(req,res){
  fs.writeFile(path.resolve(target_path),req.file.buffer,function(err){
    if(err){
      res.send({success:false});
+   }else{
+     var factory = require('./server/uuid.js');
+     var uid = factory.uuid(9,10);
+     sql = "insert into book(bookId,bookName,brefInfo,imgUrl,userId,state) values("+mysql.escape(uid)+","+
+     mysql.escape(bookName)+","+mysql.escape(brefInfo)+","+mysql.escape(target_path)+","+mysql.escape(userId)+",2);";
+     query(sql,function(err,vals,fields){
+       res.send({success:true})
+     }) 
    }
-   var factory = require('./server/uuid.js');
-   var uid = factory.uuid(9,10);
-   sql = "insert into book(bookId,bookName,brefInfo,imgUrl,userId,state) values("+mysql.escape(uid)+","+
-   mysql.escape(bookName)+","+mysql.escape(brefInfo)+","+mysql.escape(target_path)+","+mysql.escape(userId)+",2);";
-   query(sql,function(err,vals,fields){
-     res.send({success:true})
-   })
  })
 })
 
