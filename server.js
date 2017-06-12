@@ -358,7 +358,7 @@ app.get('/addAddress',function(req,res){
   })
 })
 app.post('/addBooks',function(req,res){
-  console.log(req.body);
+  console.log(req.body,req.files);
   var bookName = req.body.bookName, brefInfo = req.body.brefInfo, name = req.body.name, userId = req.body.userId, sql = "";
   req.busboy.on('file', function (fieldname, file, filename, encoding, mimetype) {
         var dataArr = [], len = 0,strBase64;
