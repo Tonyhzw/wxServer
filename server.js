@@ -12,9 +12,9 @@ app.get('/checkAuth',function(req,res){
   var sql = "select userId,type from user where nickname = "+ mysql.escape(nickname)+";";
   query(sql,function(err,vals,fields) {
     if(vals.length==0){
-      res.send({type:-1,userId:-1});
+      res.json({type:-1,userId:-1});
     }else{
-      res.send(vals);
+      res.json(vals);
     }
   });
 })
@@ -25,14 +25,14 @@ app.get('/login',function(req,res){
   var sql = "select * from invite where code = "+ mysql.escape(code)+";";
   query(sql,function(err,vals,fields) {
     if(vals.length==0){
-      res.send({type:-1,userId:-1});
+      res.json({type:-1,userId:-1});
     }else{
       var type = 2;
       sql = "delete from invite where code = "+mysql.escape(code)+";"+
       "insert into user(username,type) values("+mysql.escape(username)+","+mysql.escape(type)+");"+
       "select userId,type from user where username = "+mysql.escape(username)+";";
       query(sql,function(err,vals,fields){
-        res.send(vals);
+        res.json(vals);
       })
     }
   });
@@ -47,14 +47,14 @@ app.get('/bookSearch',function(req,res){
     sql = "select * from book where bookName = "+mysql.escape(bookName)+" and userId = "+mysql.escape(userId)+";";
   }
   query(sql,function(err,vals,fields){
-    res.send({success:true,bookList:vals});
+    res.json({success:true,bookList:vals});
   })
 })
 app.get('/addCart',function(req,res){
   var userId = req.query.userId,bookId = req.query.bookId,sql = "";
   sql = "insert into bookCart(userId,bookId) values("+mysql.escape(userId)+","+mysql.escape(bookId)+");"
   query(sql,function(err,vals,fields){
-    res.send({success:true})
+    res.json({success:true})
   })
 })
 app.get('/borrowBooks',function(req,res){
@@ -74,7 +74,7 @@ app.get('/borrowBooks',function(req,res){
           results.push(temp);
         })
       })
-      res.send({orderList:results});
+      res.json({orderList:results});
     })
   }else{
     //借出
@@ -89,7 +89,7 @@ app.get('/borrowBooks',function(req,res){
           results.push({id:orderId,time:time,bookList:vals});
         })
       })
-      res.send({orderList:results});
+      res.json({orderList:results});
     })
   }
 })
@@ -141,7 +141,7 @@ app.get('/returnBooks',function(req,res){
           })
         })
       })
-      res.send({orderList:results});
+      res.json({orderList:results});
     })
   }
 })
@@ -162,7 +162,7 @@ app.get('/historyBooks',function(req,res){
           results.push(temp);
         })
       })
-      res.send({orderList:results});
+      res.json({orderList:results});
     })
   }else{
     //借出的历史记录
@@ -179,7 +179,7 @@ app.get('/historyBooks',function(req,res){
           results.push({id:orderId,time:time,bookList:vals});
         })
       })
-      res.send({orderList:results});
+      res.json({orderList:results});
     })
   }
 })
@@ -190,14 +190,14 @@ app.get('/getOrderAddress',function(req,res){
     sql = "select address.* from address,book,bookOrder where bookOrder.bookOrderId = "+mysql.escape(bookOrderId)+
     " bookOrder.bookId = book.bookId and book.userId = address.userId and address.isDefault = 1;"
     query(sql,function(err,vals,fields){
-      results.push({success:true,info:vals});
+      res.json({success:true,info:vals});
     })
   }else{
     //返回书籍借阅者的地址
     sql = "select address.* from address,bookOrder,orderTable where bookOrder.bookOrderId = "+mysql.escape(bookOrderId)+
     " bookOrder.orderId = orderTable.orderId and orderTable.addressId = address.addressId;"
     query(sql,function(err,vals,fields){
-      results.push({success:true,info:vals});
+      res.json({success:true,info:vals});
     })
   }
 })
@@ -215,18 +215,18 @@ app.get('/isExist',function(req,res){
        sql = "update bookOrder set mailNumberReturn = "+mysql.escape(mailNumber)+",shipperCodeReturn = "+
        shipper.ShipperCode+",orderState = 2 where bookOrderId = "+mysql.escape(bookOrderId)+";";
        query(sql,function(err,vals,fields){
-         res.send({isExist:true,Shipper:response})
+         res.json({isExist:true,Shipper:response})
        })
      }else{
        //借出
        sql = "update bookOrder set mailNumber = "+mysql.escape(mailNumber)+",shipperCode = "+
        shipper.ShipperCode+",orderState = 1 where bookOrderId = "+mysql.escape(bookOrderId)+";";
        query(sql,function(err,vals,fields){
-         res.send({isExist:true,Shipper:response})
+         res.json({isExist:true,Shipper:response})
        })
      }
   }).catch(function(){
-     res.send({isExist:false});
+     res.json({isExist:false});
   });
 })
 app.get('/getExpress',function(req,res){
@@ -235,9 +235,9 @@ app.get('/getExpress',function(req,res){
   var search = new ExpressSearch();
   var promise = search.trace({"LogisticCode":mailNumber,"OrderCode": "","ShipperCode": shipperCode});
   promise.then(function(data){
-     res.send(data);
+     res.json(data);
   }).catch(function(data){
-     res.send(data);
+     res.json(data);
   });
 })
 app.get('/getOrderDetail',function(req,res){
@@ -254,7 +254,7 @@ app.get('/getOrderDetail',function(req,res){
         results.push({mailNumber:mailNumber,status:orderStateList[orderState],book:vals});
       })
     })
-    res.send({success:true,bookList:results});
+    res.json({success:true,bookList:results});
   })
 })
 app.get('/getMailDetail',function(req,res){
@@ -263,7 +263,7 @@ app.get('/getMailDetail',function(req,res){
   sql = "select book.* from bookOrder,book where bookOrder.mailNumberReturn = "+
   mysql.escape(mailNumber)+" and bookOrder.bookId = book.bookId;";
   query(sql,function(err,vals,fields){
-    res.send({success:true,bookList:results});
+    res.json({success:true,bookList:results});
   })
 })
 app.get('/getHistoryDetail',function(req,res){
@@ -271,21 +271,21 @@ app.get('/getHistoryDetail',function(req,res){
   sql = "select book.* from bookOrder,book where bookOrder.bookOrderId = "+
   mysql.escape(bookOrderId)+" and bookOrder.bookId = book.bookId;";
   query(sql,function(err,vals,fields){
-    res.send({success:true,bookList:results});
+    res.json({success:true,bookList:results});
   })
 })
 app.get('getCart',function(req,res){
   var userId = req.query.userId,sql = "";
   sql = "select book.*, user.nickname from bookCart,book,user where bookCart.userId = "+mysql.escape(userId)+" and book.bookId = bookCart.bookId and book.userId = userId;";
   query(sql,function(err,vals,fields){
-    res.send({success:true,books:vals});
+    res.json({success:true,books:vals});
   })
 })
 app.get('/getDefaultAddress',function(req,res){
   var userId = req.query.userId;
   sql = "select * from address where userId = "+mysql.escape(userId)+" and isDefault = 1;";
   query(sql,function(err,vals,fields){
-    res.send({success:true,address:vals})
+    res.json({success:true,address:vals})
   })
 })
 app.get('/submitOrders',function(req,res){
@@ -300,28 +300,28 @@ app.get('/submitOrders',function(req,res){
     sql += "delete from bookCart where userId = "+mysql.escape(userId)+" and bookId = "+mysql.escape(bookIdList[i])+";";
   }
   query(sql,function(err,vals,fields){
-      res.send({success:true});
+      res.json({success:true});
   });
 })
 app.get('/deleteBooks',function(req,res){
   var userId = req.query.userId, bookId = req.query.bookId,sql = "";
   sql = "delete from book where bookId = "+ mysql.escape(bookId)+" and userId = "+ mysql.escape(userId) +";";
   query(sql,function(err,vals,fields){
-    res.send({success:true});
+    res.json({success:true});
   })
 })
 app.get('/getOwnBooks',function(req,res){
   var userId = req.query.userId,sql = "";
   sql = "select * from book where userId = "+ mysql.escape(userId) +";";
   query(sql,function(err,vals,fields){
-    res.send({success:true,bookList:vals});
+    res.json({success:true,bookList:vals});
   })
 })
 app.get('/getOwnAddress',function(req,res){
   var userId = req.query.userId,sql = "";
   sql = "select * from address where userId = "+ mysql.escape(userId) +";";
   query(sql,function(err,vals,fields){
-    res.send({success:true,address:vals});
+    res.json({success:true,address:vals});
   })
 })
 app.get('/changeDefaultAddress',function(req,res){
@@ -329,7 +329,7 @@ app.get('/changeDefaultAddress',function(req,res){
   sql = "update address set isDefault = 0  where addressId = "+mysql.escape(prevId)+";";
   sql += "update address set isDefault = 1 where addressId = "+mysql.escape(curId)+";";
   query(sql,function(err,vals,fields){
-    res.send({success:true});
+    res.json({success:true});
   })
 })
 app.get('/deleteOwnAddress',function(req,res){
@@ -339,7 +339,7 @@ app.get('/deleteOwnAddress',function(req,res){
     sql +="update address set isDefault = 1 where addressId ="+mysql.escape(newDefaultId)+";";
   }
   query(sql,function(err,vals,fields){
-    res.send({success:true});
+    res.json({success:true});
   })
 })
 app.get('/addAddress',function(req,res){
@@ -353,7 +353,7 @@ app.get('/addAddress',function(req,res){
   mysql.escape(uid)+","+mysql.escape(userId)+","+mysql.escape(username)+","+mysql.escape(provinceName)+","+mysql.escape(postalCode)+","+mysql.escape(cityName)+
   ","+mysql.escape(countyName)+","+mysql.escape(detailInfo)+","+mysql.escape(nationalCode)+","+mysql.escape(telNumber)+","+mysql.escape(isDefault)+");"
   query(sql,function(err,vals,fields){
-    res.send({success:true,addressId:uid});
+    res.json({success:true,addressId:uid});
   })
 })
 
@@ -370,15 +370,15 @@ app.post('/addBooks',upload.single('file'),function(req,res){
  var path = require('path');
  fs.writeFile(path.resolve(target_path),req.file.buffer,function(err){
    if(err){
-     res.send({success:false});
+     res.json({success:false});
    }else{
      var factory = require('./server/uuid.js');
      var uid = factory.uuid(9,10);
      sql = "insert into book(bookId,bookName,brefInfo,imgUrl,userId,state) values("+mysql.escape(uid)+","+
      mysql.escape(bookName)+","+mysql.escape(brefInfo)+","+mysql.escape(target_path)+","+mysql.escape(userId)+",2);";
      query(sql,function(err,vals,fields){
-       res.send({success:true})
-     }) 
+       res.json({success:true})
+     })
    }
  })
 })
