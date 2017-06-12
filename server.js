@@ -331,8 +331,11 @@ app.get('/changeDefaultAddress',function(req,res){
   })
 })
 app.get('/deleteOwnAddress',function(req,res){
-  var userId = req.query.userId, addressId = req.query.addressId,sql = "";
+  var userId = req.query.userId,newDefaultId = req.query.newDefaultId,addressId = req.query.addressId,sql = "";
   sql = "delete from address where userId = "+mysql.escape(userId)+" and addressId = "+mysql.escape(addressId)+";";
+  if(newDefaultId!=-1){
+    sql +="update address set isDefault = 1 where addressId ="+mysql.escape(newDefaultId)+";";
+  }
   query(sql,function(err,vals,fields){
     res.send({success:true});
   })
