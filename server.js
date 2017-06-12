@@ -1,15 +1,9 @@
 var express = require('express');
 var app = express();
-//var busboy  = require('connect-busboy');
 var query = require('./server/dbConn.js');
 var mysql=require("mysql");
 var multer  = require('multer')
-//var bodyParser = require('body-parser');
-var upload = multer(); 
-//app.use(busboy({ immediate: true }));
-
-//app.use(bodyParser.urlencoded({extended: true}));
-//app.use(bodyParser.json());
+var upload = multer();
 
 //登陆鉴权
 app.get('/checkAuth',function(req,res){
@@ -366,27 +360,30 @@ app.get('/addAddress',function(req,res){
 app.post('/addBooks',upload.single('file'),function(req,res){
   console.log(req.body,req.file);
   var bookName = req.body.bookName, brefInfo = req.body.brefInfo, name = req.body.name, userId = req.body.userId, sql = "";
-  /*req.busboy.on('file', function (fieldname, file, filename, encoding, mimetype) {
-        var dataArr = [], len = 0,strBase64;
-        file.on("data", function (chunk){
-            dataArr.push(chunk);
-            len += chunk.length;
-        });
-        file.on("end", function () {
-            strBase64 = Buffer.concat( dataArr, len ).toString('base64');
-            var factory = require('./server/uuid.js');
-            var uid = factory.uuid(9,10);
-            sql = "insert into book(bookId,bookName,brefInfo,imgUrl,userId,state) values("+mysql.escape(uid)+","+
-            mysql.escape(bookName)+","+mysql.escape(brefInfo)+","+mysql.escape(strBase64)+","+mysql.escape(userId)+",2);";
-            query(sql,function(err,vals,fields){
-              res.send({success:true});
-            })
-        });
+  /** When using the "single"
+     data come in "req.file" regardless of the attribute "name". **/
+ var tmp_path = req.file.path;
 
-    });
+ /** The original name of the uploaded file
+     stored in the variable "originalname". **/
+ var target_path = 'uploads/' + req.file.originalname;
 
-    req.pipe(req.busboy);
-    */
+ /** A better way to copy the uploaded file. **/
+ var src = fs.createReadStream(tmp_path);
+ var dest = fs.createWriteStream(target_path);
+ src.pipe(dest);
+ src.on('end', function() {
+   var factory = require('./server/uuid.js');
+   var uid = factory.uuid(9,10);
+   sql = "insert into book(bookId,bookName,brefInfo,imgUrl,userId,state) values("+mysql.escape(uid)+","+
+   mysql.escape(bookName)+","+mysql.escape(brefInfo)+","+mysql.escape(target_path)+","+mysql.escape(userId)+",2);";
+   query(sql,function(err,vals,fields){
+     res.send({success:true});
+   })
+ });
+ src.on('error', function(err) {
+   res.send({success:false});
+ });
 })
 
 // respond with "hello world" when a GET request is made to the homepage

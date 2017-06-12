@@ -9,9 +9,8 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "body-parser": "^1.17.2",
-    "connect-busboy": "0.0.2",
     "express": "^4.15.3",
+    "fs": "0.0.1-security",
     "multer": "^1.3.0",
     "mysql": "^2.13.0",
     "superagent": "^3.5.2"
