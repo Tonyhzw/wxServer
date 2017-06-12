@@ -368,7 +368,7 @@ app.post('/addBooks',upload.single('file'),function(req,res){
  var fs = require('fs');
  /** The original name of the uploaded file
      stored in the variable "originalname". **/
- var target_path = 'uploads/' + req.file.originalname;
+ var target_path = 'uploads/' + req.file.originalname,imgUrl = 'https://wxapp.feblog.top/'+req.file.originalname;
  var path = require('path');
  fs.writeFile(path.resolve(target_path),req.file.buffer,function(err){
    if(err){
@@ -377,7 +377,7 @@ app.post('/addBooks',upload.single('file'),function(req,res){
      var factory = require('./server/uuid.js');
      var uid = factory.uuid(9,10);
      sql = "insert into book(bookId,bookName,brefInfo,imgUrl,userId,state) values("+mysql.escape(uid)+","+
-     mysql.escape(bookName)+","+mysql.escape(brefInfo)+","+mysql.escape(req.file.originalname)+","+mysql.escape(userId)+",2);";
+     mysql.escape(bookName)+","+mysql.escape(brefInfo)+","+mysql.escape(imgUrl)+","+mysql.escape(userId)+",2);";
      query(sql,function(err,vals,fields){
        res.json({success:true})
      })
