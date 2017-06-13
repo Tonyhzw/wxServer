@@ -304,8 +304,8 @@ app.get('/submitOrders',function(req,res){
   var currentTime = moment().local().format("YYYY-MM-DD HH:mm:ss");
 	for(let i = 0; i < bookIdList.length; i++){
 		let uid = factory.uuid(9,10);
-    sql += "insert into orderTable(orderId,userId,time,addressId) values("+uid+","+mysql.escape(userId)+","+currentTime+","+addressId+");";
-    sql += "insert into bookOrder(bookId,orderId,orderState) values("+mysql.escape(bookIdList[i])+","+uid+","+"0"+");";
+    sql += "insert into orderTable(orderId,userId,time,addressId) values("+mysql.escape(uid)+","+mysql.escape(userId)+","+mysql.escape(currentTime)+","+mysql.escape(addressId)+");";
+    sql += "insert into bookOrder(bookId,orderId,orderState) values("+mysql.escape(bookIdList[i])+","+mysql.escape(uid)+","+"0"+");";
     sql += "update book set state = 0  where bookId = "+mysql.escape(bookIdList[i])+";";
     sql += "delete from bookCart where userId = "+mysql.escape(userId)+" and bookId = "+mysql.escape(bookIdList[i])+";";
   }
