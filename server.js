@@ -299,7 +299,7 @@ app.get('/getDefaultAddress',function(req,res){
   })
 })
 app.get('/submitOrders',function(req,res){
-  var userId = req.query.userId, bookIdList = req.query.bookIdList, addressId = req.query.addressId, sql = "";
+  var userId = req.query.userId, bookIdList = JSON.parse(req.query.bookIdList), addressId = req.query.addressId, sql = "";
   var factory = require('./server/uuid.js');
   var currentTime = moment().local().format("YYYY-MM-DD HH:mm:ss");
 	for(let i = 0; i < bookIdList.length; i++){
