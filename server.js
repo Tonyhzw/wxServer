@@ -286,7 +286,7 @@ app.get('/getHistoryDetail',function(req,res){
 })
 app.get('/getCart',function(req,res){
   var userId = req.query.userId,sql = "";
-  sql = "select book.*, user.nickname from bookCart,book,user where bookCart.userId = "+mysql.escape(userId)+" and book.bookId = bookCart.bookId and book.userId = userId;";
+  sql = "select book.*, user.nickname from bookCart,book,user where bookCart.userId = "+mysql.escape(userId)+" and book.bookId = bookCart.bookId and book.userId = user.userId;";
   query(sql,function(err,vals,fields){
     res.json({success:true,books:vals});
   })
