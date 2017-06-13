@@ -78,7 +78,7 @@ app.get('/borrowBooks',function(req,res){
       vals.forEach(function(val){
         temp.id = val.orderId;
         temp.time = val.time;
-        sql = "select bookOrder.bookOrderId,book.* from bookOrder join book where orderId = "+val.orderId+" and bookOrder.bookId = book.bookId and orderState = 1;";
+        sql = "select bookOrder.bookOrderId,book.* from bookOrder join book where orderId = "+val.orderId+" and bookOrder.bookId = book.bookId and (orderState = 0 or orderState = 1);";
         query(sql,function(err,vals,fields){
           temp.bookList = vals;
           results.push(temp);
@@ -94,7 +94,7 @@ app.get('/borrowBooks',function(req,res){
       var temp = {};
       vals.forEach(function(val){
         var time = val.time,orderId = val.orderId;
-        sql = "select bookOrder.bookOrderId,book.* from bookOrder join book where bookOrder.orderId = "+orderId+" and bookOrder.bookId = book.bookId and book.userId = "+mysql.escape(userId)+" and orderState = 1;";
+        sql = "select bookOrder.bookOrderId,book.* from bookOrder join book where bookOrder.orderId = "+orderId+" and bookOrder.bookId = book.bookId and book.userId = "+mysql.escape(userId)+" and (orderState = 0 or orderState = 1);";
         query(sql,function(err,vals,fields){
           results.push({id:orderId,time:time,bookList:vals});
         })
@@ -184,7 +184,7 @@ app.get('/historyBooks',function(req,res){
         var time = val.time,orderId = val.orderId;
         sql = "select bookOrder.bookOrderId,book.* from bookOrder join book where bookOrder.orderId = "+orderId+
         " and bookOrder.bookId = book.bookId and book.userId = "+mysql.escape(userId)+
-        " and orderState = 2;";
+        " and orderState = 3;";
         query(sql,function(err,vals,fields){
           results.push({id:orderId,time:time,bookList:vals});
         })
