@@ -22,7 +22,7 @@ app.get('/checkAuth',function(req,res){
 })
 //输入邀请码，登陆
 app.get('/login',function(req,res){
-  var nickname = req.query.nickname,code = req.query.code;
+  var username = req.query.nickname,code = req.query.code;
   //查询数据库，然后返回userId,type
   var sql = "select * from invite where code = "+ mysql.escape(code)+";";
   query(sql,function(err,vals,fields) {
