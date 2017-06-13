@@ -43,10 +43,18 @@ app.get('/login',function(req,res){
 app.get('/bookSearch',function(req,res){
   var userId = req.query.userId,bookName = req.query.bookName,searchType=req.query.searchType,sql = "";
   if(searchType == "all"){
-    sql = "select * from book where bookName = "+mysql.escape(bookName)+" and userId != "+mysql.escape(userId)+" and state = 2;";
+    if(bookName == ""){
+      sql = "select * from book where userId != "+mysql.escape(userId)+" and state = 2;";
+    }else {
+      sql = "select * from book where bookName = "+mysql.escape(bookName)+" and userId != "+mysql.escape(userId)+" and state = 2;";
+    }
   }else{
     //own
-    sql = "select * from book where bookName = "+mysql.escape(bookName)+" and userId = "+mysql.escape(userId)+";";
+    if(bookName == ""){
+      sql = "select * from book where userId = "+mysql.escape(userId)+";";
+    }else{
+      sql = "select * from book where bookName = "+mysql.escape(bookName)+" and userId = "+mysql.escape(userId)+";";
+    }
   }
   query(sql,function(err,vals,fields){
     res.json({success:true,bookList:vals});
