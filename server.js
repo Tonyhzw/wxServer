@@ -75,16 +75,18 @@ app.get('/borrowBooks',function(req,res){
     var results=[];
     query(sql,function(err,vals,fields){
       var temp = {};
-      vals.forEach(function(val){
+      vals.forEach(function(val,index){
         temp.id = val.orderId;
         temp.time = val.time;
         sql = "select bookOrder.bookOrderId,book.* from bookOrder join book where orderId = "+val.orderId+" and bookOrder.bookId = book.bookId and (orderState = 0 or orderState = 1);";
         query(sql,function(err,vals,fields){
           temp.bookList = vals;
           results.push(temp);
+          if(index==vals.length-1){
+            res.json({orderList:results});
+          }
         })
       })
-      res.json({orderList:results});
     })
   }else{
     //借出
