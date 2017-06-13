@@ -4,7 +4,7 @@ var query = require('./server/dbConn.js');
 var mysql=require("mysql");
 var multer  = require('multer')
 var upload = multer();
-
+var moment = require('moment');
 app.use(express.static('uploads'));
 
 //登陆鉴权
