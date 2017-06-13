@@ -29,10 +29,10 @@ app.get('/login',function(req,res){
     if(vals.length==0){
       res.json({type:-1,userId:-1});
     }else{
-      var type = 2;
+      var type = 2,userId = vals[0].userId;
       sql = "delete from invite where code = "+mysql.escape(code)+";"+
-      "insert into user(username,type) values("+mysql.escape(username)+","+mysql.escape(type)+");"+
-      "select userId,type from user where username = "+mysql.escape(username)+";";
+      "insert into user(nickname,type,inviteUserId) values("+mysql.escape(username)+","+mysql.escape(type)+","+mysql.escape(userId)+");"+
+      "select userId,type from user where nickname = "+mysql.escape(username)+";";
       query(sql,function(err,vals,fields){
         res.json(vals);
       })
