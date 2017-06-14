@@ -260,11 +260,19 @@ app.get('/getOrderDetail',function(req,res){
     var datalist = vals,results = [];
     datalist.forEach(function(val){
       var mailNumber = val.mailNumber, orderState = val.orderState;
-      sql = "select book.* from bookOrder,book where bookOrder.mailNumber = "+mailNumber+
-      " and bookOrder.bookId = book.bookId;";
-      query(sql,function(err,vals,fields){
-        results.push({mailNumber:mailNumber,status:orderStateList[orderState],book:vals});
-      })
+      if(orderState == 1){
+        sql = "select book.* from bookOrder,book where bookOrder.mailNumber is "+mailNumber+
+        " and bookOrder.bookId = book.bookId;";
+        query(sql,function(err,vals,fields){
+          results.push({mailNumber:mailNumber,status:orderStateList[orderState],book:vals});
+        })
+      }else{
+        sql = "select book.* from bookOrder,book where bookOrder.mailNumber = "+mailNumber+
+        " and bookOrder.bookId = book.bookId;";
+        query(sql,function(err,vals,fields){
+          results.push({mailNumber:mailNumber,status:orderStateList[orderState],book:vals});
+        })
+      }
     })
     res.json({success:true,bookList:results});
   })
