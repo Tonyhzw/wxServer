@@ -265,15 +265,15 @@ app.get('/getOrderDetail',function(req,res){
         " and bookOrder.bookId = book.bookId;";
         query(sql,function(err,vals,fields){
           results.push({mailNumber:mailNumber,status:orderStateList[orderState],book:vals});
+          if(index == datalist.length-1) res.json({success:true,bookList:results});
         })
-        if(index == datalist.length-1) res.json({success:true,bookList:results});
       }else{
         sql = "select book.* from bookOrder,book where bookOrder.mailNumber = "+mailNumber+
         " and bookOrder.bookId = book.bookId;";
         query(sql,function(err,vals,fields){
           results.push({mailNumber:mailNumber,status:orderStateList[orderState],book:vals});
+          if(index == datalist.length-1) res.json({success:true,bookList:results});
         })
-        if(index == datalist.length-1) res.json({success:true,bookList:results});
       }
     })
 
