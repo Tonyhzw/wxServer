@@ -87,6 +87,7 @@ app.get('/borrowBooks',function(req,res){
           }
         })
       })
+      if(vals.length==0) res.json({orderList:results})
     })
   }else{
     //借出
@@ -94,14 +95,15 @@ app.get('/borrowBooks',function(req,res){
     var results=[];
     query(sql,function(err,vals,fields){
       var temp = {};
-      vals.forEach(function(val){
+      vals.forEach(function(val,index){
         var time = val.time,orderId = val.orderId;
         sql = "select bookOrder.bookOrderId,book.* from bookOrder join book where bookOrder.orderId = "+orderId+" and bookOrder.bookId = book.bookId and book.userId = "+mysql.escape(userId)+" and (orderState = 0 or orderState = 1);";
         query(sql,function(err,vals,fields){
           results.push({id:orderId,time:time,bookList:vals});
+          if(vals.length-1 == index)  res.json({orderList:results});
         })
       })
-      res.json({orderList:results});
+      if(vals.length == 0) res.json({orderList:results});
     })
   }
 })
@@ -112,48 +114,50 @@ app.get('/returnBooks',function(req,res){
     sql = "select * from orderTable where userId = "+mysql.escape(userId)+" order by time desc;";
     var results=[];
     query(sql,function(err,vals,fields){
-      vals.forEach(function(val){
+      vals.forEach(function(val,index){
         var time = val.time;
         sql = "select mailNumberReturn from bookOrder where orderId = "+val.orderId+" and orderState = 2;";
-        query(sql,function(err,vals,fields){
-          vals.forEach(function(val){
+        query(sql,function(err,vals1,fields){
+          vals1.forEach(function(val){
             var temp = {};
             temp.time = time;
             temp.id = val.mailNumberReturn;
             sql = "select bookOrder.bookOrderId,book.* from bookOrder join book where bookOrder.mailNumberReturn="+val.mailNumberReturn+
             " and bookOrder.bookId = book.bookId;";
-            query(sql,function(err,vals,fields){
-              temp.bookList = vals;
+            query(sql,function(err,vals2,fields){
+              temp.bookList = vals2;
               results.push(temp);
+              if(vals.length-1==index) res.send({orderList:results});
             })
           })
         })
       })
-      res.send({orderList:results});
+      if(vals.length-1 == 0) res.send({orderList:results});
     })
   }else{
     //归还借出
     sql = "select * from orderTable order by time desc;";
     var results=[];
     query(sql,function(err,vals,fields){
-      vals.forEach(function(val){
+      vals.forEach(function(val,index){
         var time = val.time;
         sql = "select mailNumberReturn from bookOrder where orderId = "+val.orderId+" and orderState = 2;";
-        query(sql,function(err,vals,fields){
-          vals.forEach(function(val){
+        query(sql,function(err,vals1,fields){
+          vals1.forEach(function(val){
             var temp = {};
             temp.time = time;
             temp.id = val.mailNumberReturn;
             sql = "select bookOrder.bookOrderId,book.* from bookOrder join book where bookOrder.mailNumberReturn="+val.mailNumberReturn+
             " and book.userId = "+mysql.escape(userId)+" and bookOrder.bookId = book.bookId;";
-            query(sql,function(err,vals,fields){
-              temp.bookList = vals;
+            query(sql,function(err,vals2,fields){
+              temp.bookList = vals2;
               results.push(temp);
+              if(vals.length-1==index) res.json({orderList:results});
             })
           })
         })
       })
-      res.json({orderList:results});
+      if(vals.length==0) res.json({orderList:results});
     })
   }
 })
@@ -165,16 +169,17 @@ app.get('/historyBooks',function(req,res){
     var results=[];
     query(sql,function(err,vals,fields){
       var temp = {};
-      vals.forEach(function(val){
+      vals.forEach(function(val,index){
         temp.id = val.orderId;
         temp.time = val.time;
         sql = "select bookOrder.bookOrderId,book.* from bookOrder join book where orderId = "+val.orderId+" and bookOrder.bookId = book.bookId and orderState = 3;";
         query(sql,function(err,vals,fields){
           temp.bookList = vals;
           results.push(temp);
+          if(index == vals.length-1)res.json({orderList:results});
         })
       })
-      res.json({orderList:results});
+      if(vals.length == 0) res.json({orderList:results});
     })
   }else{
     //借出的历史记录
@@ -189,9 +194,10 @@ app.get('/historyBooks',function(req,res){
         " and orderState = 3;";
         query(sql,function(err,vals,fields){
           results.push({id:orderId,time:time,bookList:vals});
+          if(vals.length-1 == index)  res.json({orderList:results});
         })
       })
-      res.json({orderList:results});
+      if(vals.length == 0) res.json({orderList:results});
     })
   }
 })
