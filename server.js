@@ -230,15 +230,15 @@ app.get('/isExist',function(req,res){
      var shipper = response,sql = "";
      if(type=="寄回"){
        // 插入对应bookId和userId 的位置
-       sql = "update bookOrder set mailNumberReturn = "+mysql.escape(mailNumber)+" and shipperCodeReturn = "+
-       shipper.ShipperCode+" and orderState = 2 where bookOrderId = "+mysql.escape(bookOrderId)+";";
+       sql = "update bookOrder set mailNumberReturn = "+mysql.escape(mailNumber)+", shipperCodeReturn = "+
+       mysql.escape(shipper.ShipperCode)+", orderState = 2 where bookOrderId = "+mysql.escape(bookOrderId)+";";
        query(sql,function(err,vals,fields){
          res.json({isExist:true,Shipper:response})
        })
      }else{
        //借出
-       sql = "update bookOrder set mailNumber = "+mysql.escape(mailNumber)+" and shipperCode = "+
-       shipper.ShipperCode+" and orderState = 1 where bookOrderId = "+mysql.escape(bookOrderId)+";";
+       sql = "update bookOrder set mailNumber = "+mysql.escape(mailNumber)+", shipperCode = "+
+       mysql.escape(shipper.ShipperCode)+", orderState = 1 where bookOrderId = "+mysql.escape(bookOrderId)+";";
        query(sql,function(err,vals,fields){
          res.json({isExist:true,Shipper:response})
        })
