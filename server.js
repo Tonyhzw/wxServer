@@ -206,14 +206,14 @@ app.get('/getOrderAddress',function(req,res){
   if(type="寄回"){
     //返回书籍所有者的地址
     sql = "select address.* from address,book,bookOrder where bookOrder.bookOrderId = "+mysql.escape(bookOrderId)+
-    " bookOrder.bookId = book.bookId and book.userId = address.userId and address.isDefault = 1;"
+    " and bookOrder.bookId = book.bookId and book.userId = address.userId and address.isDefault = 1;"
     query(sql,function(err,vals,fields){
       res.json({success:true,info:vals});
     })
   }else{
     //返回书籍借阅者的地址
     sql = "select address.* from address,bookOrder,orderTable where bookOrder.bookOrderId = "+mysql.escape(bookOrderId)+
-    " bookOrder.orderId = orderTable.orderId and orderTable.addressId = address.addressId;"
+    " and bookOrder.orderId = orderTable.orderId and orderTable.addressId = address.addressId;"
     query(sql,function(err,vals,fields){
       res.json({success:true,info:vals});
     })
