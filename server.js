@@ -258,23 +258,25 @@ app.get('/getOrderDetail',function(req,res){
   sql = "select orderState,mailNumber from bookOrder where orderId = "+mysql.escape(orderId)+";";
   query(sql,function(err,vals,fields){
     var datalist = vals,results = [];
-    datalist.forEach(function(val){
+    datalist.forEach(function(val,index){
       var mailNumber = val.mailNumber, orderState = val.orderState;
-      if(orderState == 1){
+      if(orderState == 0){
         sql = "select book.* from bookOrder,book where bookOrder.mailNumber is "+mailNumber+
         " and bookOrder.bookId = book.bookId;";
         query(sql,function(err,vals,fields){
           results.push({mailNumber:mailNumber,status:orderStateList[orderState],book:vals});
         })
+        if(index == datalist.length-1) res.json({success:true,bookList:results});
       }else{
         sql = "select book.* from bookOrder,book where bookOrder.mailNumber = "+mailNumber+
         " and bookOrder.bookId = book.bookId;";
         query(sql,function(err,vals,fields){
           results.push({mailNumber:mailNumber,status:orderStateList[orderState],book:vals});
         })
+        if(index == datalist.length-1) res.json({success:true,bookList:results});
       }
     })
-    res.json({success:true,bookList:results});
+
   })
 })
 app.get('/getMailDetail',function(req,res){
