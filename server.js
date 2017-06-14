@@ -258,7 +258,7 @@ app.get('/getOrderDetail',function(req,res){
   sql = "select orderState,mailNumber from bookOrder where orderId = "+mysql.escape(orderId)+";";
   query(sql,function(err,vals,fields){
     var datalist = vals,results = [];
-    mailNumberList.forEach(function(val){
+    datalist.forEach(function(val){
       var mailNumber = val.mailNumber, orderState = val.orderState;
       sql = "select book.* from bookOrder,book where bookOrder.mailNumber = "+mailNumber+
       " and bookOrder.bookId = book.bookId;";
