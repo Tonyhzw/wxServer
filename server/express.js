@@ -37,7 +37,7 @@ function Express(){
             var Success = data.Success,state = data.State,trace=data.Traces;
             //物流状态: 0-无轨迹 2-在途中，3-签收,4-问题件
             if(Success){
-              resolve({sucess:true,state:state,trace:trace});
+              resolve({success:true,state:state,trace:trace});
             }
           }
           else 	reject({success:false});

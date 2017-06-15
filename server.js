@@ -76,11 +76,11 @@ app.get('/borrowBooks',function(req,res){
     query(sql,function(err,vals,fields){
       var temp = {};
       vals.forEach(function(val,index){
-        temp.id = val.orderId;
+        temp.orderId = val.orderId;
         temp.time = val.time;
         sql = "select bookOrder.bookOrderId,book.* from bookOrder join book where orderId = "+val.orderId+" and bookOrder.bookId = book.bookId and (orderState = 0 or orderState = 1);";
-        query(sql,function(err,vals,fields){
-          temp.bookList = vals;
+        query(sql,function(err,vals2,fields){
+          temp.bookList = vals2;
           results.push(temp);
           if(index==vals.length-1){
             res.json({orderList:results});
@@ -96,12 +96,14 @@ app.get('/borrowBooks',function(req,res){
     query(sql,function(err,vals,fields){
       var temp = {};
       vals.forEach(function(val,index){
-        var time = val.time,orderId = val.orderId;
+        temp.time = val.time,temp.orderId = val.orderId;
         sql = "select bookOrder.bookOrderId,book.* from bookOrder join book where bookOrder.orderId = "+orderId+" and bookOrder.bookId = book.bookId and book.userId = "+mysql.escape(userId)+" and (orderState = 0 or orderState = 1);";
-        query(sql,function(err,vals,fields){
-          results.push({id:orderId,time:time,bookList:vals});
-          if(vals.length-1 == index)  res.json({orderList:results});
-        })
+        query(sql,function(err,vals2,fields){
+          temp.bookList=vals2;
+          results.push(temp);
+          if(vals.length-1 == index){
+            res.json({orderList:results});
+          }
       })
       if(vals.length == 0) res.json({orderList:results});
     })
