@@ -261,23 +261,23 @@ app.get('/getExpress',function(req,res){
 app.get('/getOrderDetail',function(req,res){
   //先按orderId查到所有关联的书籍，然后将书籍按照运单号分类
   var orderId = req.query.orderId,sql = "",orderStateList = ['待借出','借出','寄回','已完成'];
-  sql = "select bookOrder.orderState,bookOrder.mailNumber,orderTable.userId from bookOrder,orderTable where bookOrder.orderId = "+mysql.escape(orderId)+" and orderTable.orderId = "+mysql.escape(orderId)+";";
+  sql = "select bookOrder.orderState,bookOrder.mailNumber,bookOrder.shipperCode,orderTable.userId from bookOrder,orderTable where bookOrder.orderId = "+mysql.escape(orderId)+" and orderTable.orderId = "+mysql.escape(orderId)+";";
   query(sql,function(err,vals,fields){
     var datalist = vals,results = [];
     datalist.forEach(function(val,index){
-      var mailNumber = val.mailNumber, orderState = val.orderState,userId = val.userId;
+      var mailNumber = val.mailNumber, orderState = val.orderState,shipperCode = val.shipperCode,userId = val.userId;
       if(orderState == 0){
         sql = "select bookOrder.bookOrderId,book.* from bookOrder,book where bookOrder.mailNumber is "+mailNumber+
         " and bookOrder.bookId = book.bookId;";
         query(sql,function(err,vals,fields){
-          results.push({userId:userId,mailNumber:mailNumber,status:orderStateList[orderState],book:vals});
+          results.push({userId:userId,mailNumber:mailNumber,shipperCode:shipperCode,status:orderStateList[orderState],book:vals});
           if(index == datalist.length-1) res.json({success:true,bookList:results});
         })
       }else{
         sql = "select bookOrder.bookOrderId,book.* from bookOrder,book where bookOrder.mailNumber = "+mailNumber+
         " and bookOrder.bookId = book.bookId;";
         query(sql,function(err,vals,fields){
-          results.push({userId:userId,mailNumber:mailNumber,status:orderStateList[orderState],book:vals});
+          results.push({userId:userId,mailNumber:mailNumber,shipperCode:shipperCode,status:orderStateList[orderState],book:vals});
           if(index == datalist.length-1) res.json({success:true,bookList:results});
         })
       }
@@ -288,7 +288,7 @@ app.get('/getOrderDetail',function(req,res){
 app.get('/getMailDetail',function(req,res){
   //直接按照运单号查询，返回对应信息
   var mailNumber = req.query.mailNumber,results=[];
-  sql = "select book.* from bookOrder,book where bookOrder.mailNumberReturn = "+
+  sql = "select book.*,bookOrder.shipperCodeReturn from bookOrder,book where bookOrder.mailNumberReturn = "+
   mysql.escape(mailNumber)+" and bookOrder.bookId = book.bookId;";
   query(sql,function(err,vals,fields){
     res.json({success:true,bookList:results});
@@ -296,7 +296,7 @@ app.get('/getMailDetail',function(req,res){
 })
 app.get('/getHistoryDetail',function(req,res){
   var bookOrderId = req.query.bookOrderId;
-  sql = "select book.* from bookOrder,book where bookOrder.bookOrderId = "+
+  sql = "select book.*,bookOrder.shipperCodeReturn from bookOrder,book where bookOrder.bookOrderId = "+
   mysql.escape(bookOrderId)+" and bookOrder.bookId = book.bookId;";
   query(sql,function(err,vals,fields){
     res.json({success:true,bookList:results});
