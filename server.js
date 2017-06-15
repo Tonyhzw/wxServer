@@ -189,7 +189,7 @@ app.get('/historyBooks',function(req,res){
         temp.orderId = val.orderId;
         temp.time = val.time;
         sql = "select bookOrder.bookOrderId,book.* from bookOrder join book where orderId = "+val.orderId+" and bookOrder.bookId = book.bookId and orderState = 3;";
-        query(sql,function(err,vals,fields){
+        query(sql,function(err,vals2,fields){
           temp.bookList = vals;
           //若当前为空时
           if(vals2.length!=0){
