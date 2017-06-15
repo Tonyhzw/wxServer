@@ -28,11 +28,12 @@ function Express(){
       dataBody = this.formData(RequestData,dataBody);
       var superagent = require('superagent');
       return new Promise(function(resolve,reject){
-        superagent.post('http://api.kdniao.cc/api/dist')
+        superagent.post('http://api.kdniao.cc/Ebusiness/EbusinessOrderHandle.aspx')
         .send(dataBody)
         .end(function(err,responese){
           var status = responese.status,data = JSON.parse(responese.text);
           if(status=="200"){
+            console.log('trace message:',responese);
             var Success = data.Success,state = data.State,trace=data.Traces;
             //物流状态: 0-无轨迹 2-在途中，3-签收,4-问题件
             if(Success){
