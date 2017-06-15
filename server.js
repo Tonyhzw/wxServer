@@ -140,7 +140,6 @@ app.get('/returnBooks',function(req,res){
               if(vals2.length!=0){
                 results.push(temp);
               }
-              results.push(temp);
               if((vals.length-1)==index) res.send({orderList:results});
             })
           })
