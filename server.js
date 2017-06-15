@@ -108,6 +108,7 @@ app.get('/borrowBooks',function(req,res){
       if(vals.length == 0) res.json({orderList:results});
     })
   })
+ }
 })
 app.get('/returnBooks',function(req,res){
   var userId = req.query.userId, searchType = req.query.searchType,sql = "";
