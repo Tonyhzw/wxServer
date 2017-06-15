@@ -311,7 +311,7 @@ app.get('/getOrderDetail',function(req,res){
 app.get('/getMailDetail',function(req,res){
   //直接按照运单号查询，返回对应信息
   var mailNumber = req.query.mailNumber,results=[];
-  sql = "select book.*,bookOrder.mailNumber,bookOrder.shipperCodeReturn from bookOrder,book where bookOrder.mailNumberReturn = "+
+  sql = "select book.*,bookOrder.mailNumber,bookOrder.shipperCode,bookOrder.shipperCodeReturn from bookOrder,book where bookOrder.mailNumberReturn = "+
   mysql.escape(mailNumber)+" and bookOrder.bookId = book.bookId;";
   query(sql,function(err,vals,fields){
     var books=[];
