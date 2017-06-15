@@ -74,15 +74,15 @@ app.get('/borrowBooks',function(req,res){
     sql = "select * from orderTable where userId = "+mysql.escape(userId)+" order by time desc;";
     var results=[];
     query(sql,function(err,vals,fields){
-      var temp = {};
       vals.forEach(function(val,index){
+        var temp = {};
         temp.orderId = val.orderId;
         temp.time = val.time;
         sql = "select bookOrder.bookOrderId,book.* from bookOrder, book where orderId = "+val.orderId+" and bookOrder.bookId = book.bookId and (orderState = 0 or orderState = 1);";
         query(sql,function(err,vals2,fields){
           temp.bookList = vals2;
           results.push(temp);
-          if(index==vals.length-1){
+          if(index == (vals.length-1)){
             res.json({orderList:results});
           }
         })
@@ -94,14 +94,14 @@ app.get('/borrowBooks',function(req,res){
     sql = "select * from orderTable where userId != "+mysql.escape(userId)+" order by time desc;";
     var results=[];
     query(sql,function(err,vals,fields){
-      var temp = {};
       vals.forEach(function(val,index){
+        var temp = {};
         temp.time = val.time,temp.orderId = val.orderId;
         sql = "select bookOrder.bookOrderId,book.* from bookOrder, book where bookOrder.orderId = "+val.orderId+" and bookOrder.bookId = book.bookId and book.userId = "+mysql.escape(userId)+" and (orderState = 0 or orderState = 1);";
         query(sql,function(err,vals2,fields){
           temp.bookList=vals2;
           results.push(temp);
-          if(vals.length-1 == index){
+          if((vals.length-1) == index){
             res.json({orderList:results});
           }
        })
@@ -130,12 +130,12 @@ app.get('/returnBooks',function(req,res){
             query(sql,function(err,vals2,fields){
               temp.bookList = vals2;
               results.push(temp);
-              if(vals.length-1==index) res.send({orderList:results});
+              if((vals.length-1)==index) res.send({orderList:results});
             })
           })
         })
       })
-      if(vals.length-1 == 0) res.send({orderList:results});
+      if(vals.length == 0) res.send({orderList:results});
     })
   }else{
     //归还借出
@@ -155,7 +155,7 @@ app.get('/returnBooks',function(req,res){
             query(sql,function(err,vals2,fields){
               temp.bookList = vals2;
               results.push(temp);
-              if(vals.length-1==index) res.json({orderList:results});
+              if((vals.length-1)==index) res.json({orderList:results});
             })
           })
         })
@@ -179,7 +179,7 @@ app.get('/historyBooks',function(req,res){
         query(sql,function(err,vals,fields){
           temp.bookList = vals;
           results.push(temp);
-          if(index == vals.length-1)res.json({orderList:results});
+          if(index == (vals.length-1))res.json({orderList:results});
         })
       })
       if(vals.length == 0) res.json({orderList:results});
@@ -197,7 +197,7 @@ app.get('/historyBooks',function(req,res){
         " and orderState = 3;";
         query(sql,function(err,vals,fields){
           results.push({id:orderId,time:time,bookList:vals});
-          if(vals.length-1 == index)  res.json({orderList:results});
+          if((vals.length-1) == index)  res.json({orderList:results});
         })
       })
       if(vals.length == 0) res.json({orderList:results});
@@ -274,14 +274,14 @@ app.get('/getOrderDetail',function(req,res){
         " and bookOrder.bookId = book.bookId;";
         query(sql,function(err,vals,fields){
           results.push({userId:userId,mailNumber:mailNumber,shipperCode:shipperCode,status:orderStateList[orderState],book:vals});
-          if(index == datalist.length-1) res.json({success:true,bookList:results});
+          if(index == (datalist.length-1)) res.json({success:true,bookList:results});
         })
       }else{
         sql = "select bookOrder.bookOrderId,book.* from bookOrder,book where bookOrder.mailNumber = "+mailNumber+
         " and bookOrder.bookId = book.bookId;";
         query(sql,function(err,vals,fields){
           results.push({userId:userId,mailNumber:mailNumber,shipperCode:shipperCode,status:orderStateList[orderState],book:vals});
-          if(index == datalist.length-1) res.json({success:true,bookList:results});
+          if(index == (datalist.length-1)) res.json({success:true,bookList:results});
         })
       }
     })
