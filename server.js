@@ -81,7 +81,11 @@ app.get('/borrowBooks',function(req,res){
         sql = "select bookOrder.bookOrderId,book.* from bookOrder, book where orderId = "+val.orderId+" and bookOrder.bookId = book.bookId and (orderState = 0 or orderState = 1);";
         query(sql,function(err,vals2,fields){
           temp.bookList = vals2;
-          results.push(temp);
+          //若当前为空时
+          if(vals2.length!=0){
+            results.push(temp);
+          }
+          //若都执行完毕时
           if(index == (vals.length-1)){
             res.json({orderList:results});
           }
@@ -100,7 +104,10 @@ app.get('/borrowBooks',function(req,res){
         sql = "select bookOrder.bookOrderId,book.* from bookOrder, book where bookOrder.orderId = "+val.orderId+" and bookOrder.bookId = book.bookId and book.userId = "+mysql.escape(userId)+" and (orderState = 0 or orderState = 1);";
         query(sql,function(err,vals2,fields){
           temp.bookList=vals2;
-          results.push(temp);
+          //若当前为空时
+          if(vals2.length!=0){
+            results.push(temp);
+          }
           if((vals.length-1) == index){
             res.json({orderList:results});
           }
@@ -129,6 +136,10 @@ app.get('/returnBooks',function(req,res){
             " and bookOrder.bookId = book.bookId;";
             query(sql,function(err,vals2,fields){
               temp.bookList = vals2;
+              //若当前为空时
+              if(vals2.length!=0){
+                results.push(temp);
+              }
               results.push(temp);
               if((vals.length-1)==index) res.send({orderList:results});
             })
@@ -154,7 +165,10 @@ app.get('/returnBooks',function(req,res){
             " and book.userId = "+mysql.escape(userId)+" and bookOrder.bookId = book.bookId;";
             query(sql,function(err,vals2,fields){
               temp.bookList = vals2;
-              results.push(temp);
+              //若当前为空时
+              if(vals2.length!=0){
+                results.push(temp);
+              }
               if((vals.length-1)==index) res.json({orderList:results});
             })
           })
@@ -178,7 +192,10 @@ app.get('/historyBooks',function(req,res){
         sql = "select bookOrder.bookOrderId,book.* from bookOrder join book where orderId = "+val.orderId+" and bookOrder.bookId = book.bookId and orderState = 3;";
         query(sql,function(err,vals,fields){
           temp.bookList = vals;
-          results.push(temp);
+          //若当前为空时
+          if(vals2.length!=0){
+            results.push(temp);
+          }
           if(index == (vals.length-1))res.json({orderList:results});
         })
       })
@@ -191,12 +208,16 @@ app.get('/historyBooks',function(req,res){
     query(sql,function(err,vals,fields){
       var temp = {};
       vals.forEach(function(val){
-        var time = val.time,orderId = val.orderId;
-        sql = "select bookOrder.bookOrderId,book.* from bookOrder join book where bookOrder.orderId = "+orderId+
+        temp.time = val.time,temp.orderId = val.orderId;
+        sql = "select bookOrder.bookOrderId,book.* from bookOrder join book where bookOrder.orderId = "+val.orderId+
         " and bookOrder.bookId = book.bookId and book.userId = "+mysql.escape(userId)+
         " and orderState = 3;";
-        query(sql,function(err,vals,fields){
-          results.push({id:orderId,time:time,bookList:vals});
+        query(sql,function(err,vals2,fields){
+          temp.bookList=vals2;
+          //若当前为空时
+          if(vals2.length!=0){
+            results.push(temp);
+          }
           if((vals.length-1) == index)  res.json({orderList:results});
         })
       })
