@@ -87,7 +87,7 @@ CREATE TABLE `bookCart` (
   `userId` int(11) DEFAULT NULL,
   `bookId` int(11) DEFAULT NULL,
   PRIMARY KEY (`cartId`)
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -96,7 +96,7 @@ CREATE TABLE `bookCart` (
 
 LOCK TABLES `bookCart` WRITE;
 /*!40000 ALTER TABLE `bookCart` DISABLE KEYS */;
-INSERT INTO `bookCart` VALUES (1,1,2);
+INSERT INTO `bookCart` VALUES (1,1,2),(2,5,985143399);
 /*!40000 ALTER TABLE `bookCart` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -111,13 +111,13 @@ CREATE TABLE `bookOrder` (
   `bookOrderId` int(11) NOT NULL AUTO_INCREMENT,
   `bookId` int(11) DEFAULT NULL,
   `orderId` int(11) DEFAULT NULL,
-  `mailNumber` int(15) DEFAULT NULL,
-  `mailNumberReturn` int(15) DEFAULT NULL,
+  `mailNumber` tinytext COLLATE utf8_unicode_ci,
+  `mailNumberReturn` tinytext COLLATE utf8_unicode_ci,
   `orderState` int(11) DEFAULT NULL,
   `shipperCode` varchar(45) COLLATE utf8_unicode_ci DEFAULT NULL,
   `shipperCodeReturn` varchar(45) COLLATE utf8_unicode_ci DEFAULT NULL,
   PRIMARY KEY (`bookOrderId`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -126,6 +126,7 @@ CREATE TABLE `bookOrder` (
 
 LOCK TABLES `bookOrder` WRITE;
 /*!40000 ALTER TABLE `bookOrder` DISABLE KEYS */;
+INSERT INTO `bookOrder` VALUES (1,985143399,943574760,'31012929046894','0',1,'YD',NULL),(2,985143399,943574760,NULL,NULL,0,NULL,NULL);
 /*!40000 ALTER TABLE `bookOrder` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -166,7 +167,7 @@ CREATE TABLE `orderTable` (
   `time` datetime DEFAULT NULL,
   `addressId` int(11) DEFAULT NULL,
   PRIMARY KEY (`orderId`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=943574761 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -175,6 +176,7 @@ CREATE TABLE `orderTable` (
 
 LOCK TABLES `orderTable` WRITE;
 /*!40000 ALTER TABLE `orderTable` DISABLE KEYS */;
+INSERT INTO `orderTable` VALUES (943574760,5,'2017-06-13 16:37:10',385616362);
 /*!40000 ALTER TABLE `orderTable` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -221,4 +223,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2017-06-13  0:22:11
+-- Dump completed on 2017-06-15 10:41:59
