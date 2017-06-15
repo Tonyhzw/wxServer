@@ -78,7 +78,7 @@ app.get('/borrowBooks',function(req,res){
       vals.forEach(function(val,index){
         temp.orderId = val.orderId;
         temp.time = val.time;
-        sql = "select bookOrder.bookOrderId,book.* from bookOrder join book where orderId = "+val.orderId+" and bookOrder.bookId = book.bookId and (orderState = 0 or orderState = 1);";
+        sql = "select bookOrder.bookOrderId,book.* from bookOrder, book where orderId = "+val.orderId+" and bookOrder.bookId = book.bookId and (orderState = 0 or orderState = 1);";
         query(sql,function(err,vals2,fields){
           temp.bookList = vals2;
           results.push(temp);
@@ -91,13 +91,13 @@ app.get('/borrowBooks',function(req,res){
     })
   }else{
     //借出
-    sql = "select * from orderTable order by time desc;";
+    sql = "select * from orderTable where userId != "+mysql.escape(userId)+" order by time desc;";
     var results=[];
     query(sql,function(err,vals,fields){
       var temp = {};
       vals.forEach(function(val,index){
         temp.time = val.time,temp.orderId = val.orderId;
-        sql = "select bookOrder.bookOrderId,book.* from bookOrder join book where bookOrder.orderId = "+orderId+" and bookOrder.bookId = book.bookId and book.userId = "+mysql.escape(userId)+" and (orderState = 0 or orderState = 1);";
+        sql = "select bookOrder.bookOrderId,book.* from bookOrder, book where bookOrder.orderId = "+val.orderId+" and bookOrder.bookId = book.bookId and book.userId = "+mysql.escape(userId)+" and (orderState = 0 or orderState = 1);";
         query(sql,function(err,vals2,fields){
           temp.bookList=vals2;
           results.push(temp);
