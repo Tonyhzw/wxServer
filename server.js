@@ -318,7 +318,7 @@ app.get('/getMailDetail',function(req,res){
     vals.forEach(function(val){
       books.push({bookId:val.bookId,bookName:val.bookName,brefInfo:val.brefInfo,imgUrl:val.imgUrl,state:val.state});
     })
-    var results =[mailNumber:vals.mailNumber,shipperCode:vals.shipperCode,shipperCodeReturn:vals.shipperCodeReturn,status:'寄回',book:books];
+    var results =[{mailNumber:vals.mailNumber,shipperCode:vals.shipperCode,shipperCodeReturn:vals.shipperCodeReturn,status:'寄回',book:books}];
     res.json({success:true,bookList:results});
   })
 })
@@ -331,7 +331,7 @@ app.get('/getHistoryDetail',function(req,res){
     vals.forEach(function(val){
       books.push({bookId:val.bookId,bookName:val.bookName,brefInfo:val.brefInfo,imgUrl:val.imgUrl,state:val.state});
     })
-    var results =[mailNumber:vals.mailNumber,shipperCodeReturn:vals.shipperCodeReturn,shipperCode:vals.shipperCode,status:'已完成',book:books];
+    var results =[{mailNumber:vals.mailNumber,shipperCodeReturn:vals.shipperCodeReturn,shipperCode:vals.shipperCode,status:'已完成',book:books}];
     res.json({success:true,bookList:results});
   })
 })
