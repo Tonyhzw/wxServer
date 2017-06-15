@@ -311,18 +311,28 @@ app.get('/getOrderDetail',function(req,res){
 app.get('/getMailDetail',function(req,res){
   //直接按照运单号查询，返回对应信息
   var mailNumber = req.query.mailNumber,results=[];
-  sql = "select book.*,bookOrder.shipperCodeReturn from bookOrder,book where bookOrder.mailNumberReturn = "+
+  sql = "select book.*,bookOrder.mailNumber,bookOrder.shipperCodeReturn from bookOrder,book where bookOrder.mailNumberReturn = "+
   mysql.escape(mailNumber)+" and bookOrder.bookId = book.bookId;";
   query(sql,function(err,vals,fields){
-    res.json({success:true,bookList:vals});
+    var books=[];
+    vals.forEach(function(val){
+      books.push({bookId:val.bookId,bookName:val.bookName,brefInfo:val.brefInfo,imgUr:val.imgUr,state:val.state});
+    })
+    var results ={mailNumber:vals.mailNumber,shipperCode:vals.shipperCode,shipperCodeReturn:vals.shipperCodeReturn,status:'寄回',book:books};
+    res.json({success:true,bookList:results});
   })
 })
 app.get('/getHistoryDetail',function(req,res){
   var bookOrderId = req.query.bookOrderId;
-  sql = "select book.*,bookOrder.shipperCodeReturn from bookOrder,book where bookOrder.bookOrderId = "+
+  sql = "select book.*,bookOrder.mailNumber,bookOrder.shipperCode,bookOrder.mailNumberReturn,bookOrder.shipperCodeReturn from bookOrder,book where bookOrder.bookOrderId = "+
   mysql.escape(bookOrderId)+" and bookOrder.bookId = book.bookId;";
   query(sql,function(err,vals,fields){
-    res.json({success:true,bookList:vals});
+    var books=[];
+    vals.forEach(function(val){
+      books.push({bookId:val.bookId,bookName:val.bookName,brefInfo:val.brefInfo,imgUr:val.imgUr,state:val.state});
+    })
+    var results ={mailNumber:vals.mailNumber,shipperCodeReturn:vals.shipperCodeReturn,shipperCode:vals.shipperCode,status:'已完成',book:books};
+    res.json({success:true,bookList:results});
   })
 })
 app.get('/getCart',function(req,res){
