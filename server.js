@@ -104,9 +104,9 @@ app.get('/borrowBooks',function(req,res){
           if(vals.length-1 == index){
             res.json({orderList:results});
           }
-      })
-      if(vals.length == 0) res.json({orderList:results});
-    })
+       })
+     })
+     if(vals.length == 0) res.json({orderList:results});
   })
  }
 })
