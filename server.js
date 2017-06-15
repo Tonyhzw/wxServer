@@ -314,7 +314,7 @@ app.get('/getMailDetail',function(req,res){
   sql = "select book.*,bookOrder.shipperCodeReturn from bookOrder,book where bookOrder.mailNumberReturn = "+
   mysql.escape(mailNumber)+" and bookOrder.bookId = book.bookId;";
   query(sql,function(err,vals,fields){
-    res.json({success:true,bookList:results});
+    res.json({success:true,bookList:vals});
   })
 })
 app.get('/getHistoryDetail',function(req,res){
@@ -322,7 +322,7 @@ app.get('/getHistoryDetail',function(req,res){
   sql = "select book.*,bookOrder.shipperCodeReturn from bookOrder,book where bookOrder.bookOrderId = "+
   mysql.escape(bookOrderId)+" and bookOrder.bookId = book.bookId;";
   query(sql,function(err,vals,fields){
-    res.json({success:true,bookList:results});
+    res.json({success:true,bookList:vals});
   })
 })
 app.get('/getCart',function(req,res){
