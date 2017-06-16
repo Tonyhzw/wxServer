@@ -77,7 +77,7 @@ app.get('/borrowBooks',function(req,res){
       vals.forEach(function(val,index){
         var temp = {};
         temp.orderId = val.orderId;
-        temp.time = val.time;
+        temp.time = moment(val.time).format("YYYY-MM-DD HH:mm:ss");
         sql = "select bookOrder.bookOrderId,book.* from bookOrder, book where orderId = "+val.orderId+" and bookOrder.bookId = book.bookId and (orderState = 0 or orderState = 1);";
         query(sql,function(err,vals2,fields){
           temp.bookList = vals2;
@@ -125,7 +125,7 @@ app.get('/returnBooks',function(req,res){
     var results=[];
     query(sql,function(err,vals,fields){
       vals.forEach(function(val,index){
-        var time = val.time;
+        var time = moment(val.time).format("YYYY-MM-DD HH:mm:ss");
         sql = "select mailNumberReturn from bookOrder where orderId = "+val.orderId+" and orderState = 2;";
         query(sql,function(err,vals1,fields){
           vals1.forEach(function(val){
@@ -153,7 +153,7 @@ app.get('/returnBooks',function(req,res){
     var results=[];
     query(sql,function(err,vals,fields){
       vals.forEach(function(val,index){
-        var time = val.time;
+        var time = moment(val.time).format("YYYY-MM-DD HH:mm:ss");
         sql = "select mailNumberReturn from bookOrder where orderId = "+val.orderId+" and orderState = 2;";
         query(sql,function(err,vals1,fields){
           vals1.forEach(function(val){
@@ -187,7 +187,7 @@ app.get('/historyBooks',function(req,res){
       var temp = {};
       vals.forEach(function(val,index){
         temp.orderId = val.orderId;
-        temp.time = val.time;
+        temp.time = moment(val.time).format("YYYY-MM-DD HH:mm:ss");
         sql = "select bookOrder.bookOrderId,book.* from bookOrder join book where orderId = "+val.orderId+" and bookOrder.bookId = book.bookId and orderState = 3;";
         query(sql,function(err,vals2,fields){
           temp.bookList = vals;
@@ -207,7 +207,7 @@ app.get('/historyBooks',function(req,res){
     query(sql,function(err,vals,fields){
       var temp = {};
       vals.forEach(function(val){
-        temp.time = val.time,temp.orderId = val.orderId;
+        temp.time = moment(val.time).format("YYYY-MM-DD HH:mm:ss"),temp.orderId = val.orderId;
         sql = "select bookOrder.bookOrderId,book.* from bookOrder join book where bookOrder.orderId = "+val.orderId+
         " and bookOrder.bookId = book.bookId and book.userId = "+mysql.escape(userId)+
         " and orderState = 3;";
