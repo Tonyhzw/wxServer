@@ -293,26 +293,17 @@ app.get('/getExpress',function(req,res){
 app.get('/getOrderDetail',function(req,res){
   //先按orderId查到所有关联的书籍，然后将书籍按照运单号分类
   var orderId = req.query.orderId,sql = "",orderStateList = ['待借出','借出','寄回','已完成'];
-  sql = "select bookOrder.orderState,bookOrder.mailNumber,bookOrder.shipperCode,orderTable.userId from bookOrder,orderTable where bookOrder.orderId = "+mysql.escape(orderId)+" and orderTable.orderId = "+mysql.escape(orderId)+";";
+  sql = "select bookOrder.bookId,bookOrder.orderState,bookOrder.mailNumber,bookOrder.shipperCode,orderTable.userId from bookOrder,orderTable where bookOrder.orderId = "+mysql.escape(orderId)+" and orderTable.orderId = "+mysql.escape(orderId)+";";
   query(sql,function(err,vals,fields){
     var datalist = vals,results = [];
     datalist.forEach(function(val,index){
-      var mailNumber = val.mailNumber, orderState = val.orderState,shipperCode = val.shipperCode,userId = val.userId;
-      if(orderState == 0){
-        sql = "select bookOrder.bookOrderId,book.* from bookOrder,book where bookOrder.mailNumber is "+mailNumber+
+      var mailNumber = val.mailNumber, bookId = val.bookId,orderState = val.orderState,shipperCode = val.shipperCode,userId = val.userId;
+        sql = "select bookOrder.bookOrderId,book.* from bookOrder,book where book.bookId = "+ mysql.escape(bookId)+
         " and bookOrder.bookId = book.bookId;";
         query(sql,function(err,vals,fields){
           results.push({userId:userId,mailNumber:mailNumber,shipperCode:shipperCode,status:orderStateList[orderState],book:vals});
           if(index == (datalist.length-1)) res.json({success:true,bookList:results});
         })
-      }else{
-        sql = "select bookOrder.bookOrderId,book.* from bookOrder,book where bookOrder.mailNumber = "+mailNumber+
-        " and bookOrder.bookId = book.bookId;";
-        query(sql,function(err,vals,fields){
-          results.push({userId:userId,mailNumber:mailNumber,shipperCode:shipperCode,status:orderStateList[orderState],book:vals});
-          if(index == (datalist.length-1)) res.json({success:true,bookList:results});
-        })
-      }
     })
 
   })
@@ -436,7 +427,7 @@ app.post('/addBooks',upload.single('file'),function(req,res){
  var fs = require('fs');
  /** The original name of the uploaded file
      stored in the variable "originalname". **/
- var imgPath = req.file.originalname + moment().format('x');
+ var imgPath = moment().format('x')+req.file.originalname;
  var target_path = 'uploads/' + imgPath,imgUrl = 'https://wxapp.feblog.top/'+ imgPath;
  var path = require('path');
  fs.writeFile(path.resolve(target_path),req.file.buffer,function(err){
