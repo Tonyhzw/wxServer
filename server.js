@@ -177,6 +177,14 @@ app.get('/returnBooks',function(req,res){
     })
   }
 })
+app.get('/successReturn',function(req,res){
+  var bookOrderId = req.query.bookOrderId,sql = "";
+  sql = "update orderState = 3 where bookOrderId = "+mysql.escape(bookOrderId)+";"+
+  "update book,bookOrder set book.state = 2 where book.bookId = bookOrder.bookId and bookOrder.bookOrderId = "+mysql.escape(bookOrderId)+";";
+  query(sql,function(err,vals,fields){
+    res.json({success:true});
+  })
+})
 app.get('/historyBooks',function(req,res){
   var userId = req.query.userId, searchType = req.query.searchType,sql = "";
   if(searchType == "in"){
@@ -254,7 +262,8 @@ app.get('/isExist',function(req,res){
      if(type=="寄回"){
        // 插入对应bookId和userId 的位置
        sql = "update bookOrder set mailNumberReturn = "+mysql.escape(mailNumber)+", shipperCodeReturn = "+
-       mysql.escape(shipper.ShipperCode)+", orderState = 2 where bookOrderId = "+mysql.escape(bookOrderId)+";";
+       mysql.escape(shipper.ShipperCode)+", orderState = 2 where bookOrderId = "+mysql.escape(bookOrderId)+";"+
+       "update book,bookOrder set book.state = 1 where book.bookId = bookOrder.bookId and bookOrder.bookOrderId ="+mysql.escape(bookOrderId)+";";
        query(sql,function(err,vals,fields){
          res.json({isExist:true,Shipper:response})
        })
