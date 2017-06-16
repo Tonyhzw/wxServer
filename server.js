@@ -436,7 +436,8 @@ app.post('/addBooks',upload.single('file'),function(req,res){
  var fs = require('fs');
  /** The original name of the uploaded file
      stored in the variable "originalname". **/
- var target_path = 'uploads/' + req.file.originalname,imgUrl = 'https://wxapp.feblog.top/'+req.file.originalname;
+ var imgPath = req.file.originalname + moment().format('x');
+ var target_path = 'uploads/' + imgPath,imgUrl = 'https://wxapp.feblog.top/'+ imgPath;
  var path = require('path');
  fs.writeFile(path.resolve(target_path),req.file.buffer,function(err){
    if(err){
