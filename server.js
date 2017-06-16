@@ -29,7 +29,7 @@ app.get('/login',function(req,res){
     if(vals.length==0){
       res.json({type:-1,userId:-1});
     }else{
-      var type = 2,userId = vals[0].userId;
+      var type = vals[0].type,userId = vals[0].userId;
       sql = "delete from invite where code = "+mysql.escape(code)+";"+
       "insert into user(nickname,type,inviteUserId) values("+mysql.escape(username)+","+mysql.escape(type)+","+mysql.escape(userId)+");"+
       "select userId,type from user where nickname = "+mysql.escape(username)+";";
@@ -454,13 +454,15 @@ app.post('/addBooks',upload.single('file'),function(req,res){
  })
 })
 app.get('/getCode',function(req,res){
-  var userId = req.query.userId, type = req.query.type, sql = "";
+  var userId = req.query.userId, type = req.query.type, key = req.query.key, insertType = -1,sql = "";
   sql = "select * from user where userId = "+mysql.escape(userId)+" and type = "+mysql.escape(type)+";";
+  if(key == 4) insertType = 2;
+  else if(key == 5) insertType = 1;
   query(sql,function(err,vals,fields){
     if(vals.length==1){
       var factory = require('./server/uuid.js');
       var code = factory.uuid(6,16),uuid =factory.uuid(9,10) ;
-      sql = "insert into invite(inviteId,userId,code) values("+mysql.escape(uuid)+","+mysql.escape(userId)+","+mysql.escape(code)+");";
+      sql = "insert into invite(inviteId,userId,code,type) values("+mysql.escape(uuid)+","+mysql.escape(userId)+","+mysql.escape(code)+","+mysql.escape(insertType)+");";
       query(sql,function(err,vals,fields){
           res.json({success:true,code:code});
       })
