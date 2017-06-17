@@ -199,7 +199,7 @@ CREATE TABLE `user` (
 
 LOCK TABLES `user` WRITE;
 /*!40000 ALTER TABLE `user` DISABLE KEYS */;
-INSERT INTO `user` VALUES (1,'冷暖心',0,1);
+INSERT INTO `user` VALUES (1,'冷暖心',0,1),(5,'yanjing123',1,1);
 /*!40000 ALTER TABLE `user` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -235,7 +235,7 @@ BEGIN
     #开启事务 
     START TRANSACTION; 
     
-    select userId into t_userId from userId where userId = userId LIMIT 1 FOR UPDATE;
+    select userId into t_userId from user where userId = userId LIMIT 1 FOR UPDATE;
     select bookId into t_bookId from book where bookId = bookId  LIMIT 1 FOR UPDATE;
     
     #SELECT t_userId, t_type;
@@ -636,4 +636,4 @@ DELIMITER ;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2017-06-17 15:53:12
+-- Dump completed on 2017-06-17 17:03:02
