@@ -39,14 +39,14 @@ app.get('/bookSearch',function(req,res){
     if(bookName == ""){
       sql = "select * from book where userId != "+mysql.escape(userId)+" and state = 2;";
     }else {
-      sql = "select * from book where bookName = "+mysql.escape(bookName)+" and userId != "+mysql.escape(userId);
+      sql = "select * from book where bookName like '%"+bookName+"%' and userId != "+mysql.escape(userId);
     }
   }else{
     //own
     if(bookName == ""){
       sql = "select * from book where userId = "+mysql.escape(userId)+";";
     }else{
-      sql = "select * from book where bookName = "+mysql.escape(bookName)+" and userId = "+mysql.escape(userId)+";";
+      sql = "select * from book where bookName like '%"+bookName+"%' and userId = "+mysql.escape(userId)+";";
     }
   }
   query(sql,function(err,vals,fields){
@@ -57,6 +57,7 @@ app.get('/addCart',function(req,res){
   var userId = req.query.userId,bookId = req.query.bookId,sql = "";
   sql = "call addCart("+mysql.escape(userId)+","+mysql.escape(bookId)+",@success);select @success;";
   query(sql,function(err,vals,fields){
+    console.log(vals);
     res.json({success:vals[1][0]["@success"]})
   })
 })
