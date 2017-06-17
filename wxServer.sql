@@ -240,7 +240,7 @@ BEGIN
     select bookId into t_bookId from book where bookId = bookId  LIMIT 1;
     select cartId into t_cartId from bookCart where userId = userId and bookId = bookId LIMIT 1 FOR UPDATE;
     #确保每次提交的只有一份数据
-	if (t_userId!=-1&&t_bookId!=-1)&&t_cartId==-1 THEN
+	if (t_userId!=-1&&t_bookId!=-1)&&t_cartId=-1 THEN
 		insert into bookCart(userId,bookId) values(userId,bookId);
       #提交事务或者回滚
 	if t_error = 1 then
