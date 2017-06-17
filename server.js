@@ -39,7 +39,7 @@ app.get('/bookSearch',function(req,res){
     if(bookName == ""){
       sql = "select * from book where userId != "+mysql.escape(userId)+" and state = 2;";
     }else {
-      sql = "select * from book where bookName = "+mysql.escape(bookName)+" and userId != "+mysql.escape(userId)+" and state = 2;";
+      sql = "select * from book where bookName = "+mysql.escape(bookName)+" and userId != "+mysql.escape(userId);
     }
   }else{
     //own
