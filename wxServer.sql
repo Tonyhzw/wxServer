@@ -230,32 +230,32 @@ BEGIN
 	DECLARE t_bookId INTEGER DEFAULT -1;
     #定义发生异常时回滚
     DECLARE t_error INTEGER DEFAULT 0;
-    DECLARE CONTINUE HANDLER FOR SQLEXCEPTION SET t_error=1; 
-     
-    #开启事务 
-    START TRANSACTION; 
-    
+    DECLARE CONTINUE HANDLER FOR SQLEXCEPTION SET t_error=1;
+
+    #开启事务
+    START TRANSACTION;
+
     select userId into t_userId from user where userId = userId LIMIT 1 FOR UPDATE;
     select bookId into t_bookId from book where bookId = bookId  LIMIT 1 FOR UPDATE;
-    
+
     #SELECT t_userId, t_type;
 	if t_userId!=-1&&t_bookId!=-1 THEN
 		insert into bookCart(userId,bookId) values(userId,bookId);
       #提交事务或者回滚
-	if t_error = 1 then 
+	if t_error = 1 then
 		ROLLBACK;
         SET success = false;
-	else 
+	else
          COMMIT;
 		 SET success = true;
-	end if; 
-                      
+	end if;
+
   else
       #释放独占锁
       COMMIT;
       SET success = false;
-      
-  end if;	
+
+  end if;
 END ;;
 DELIMITER ;
 /*!50003 SET sql_mode              = @saved_sql_mode */ ;
@@ -283,32 +283,32 @@ BEGIN
 	DECLARE t_curId INTEGER DEFAULT -1;
     #定义发生异常时回滚
     DECLARE t_error INTEGER DEFAULT 0;
-    DECLARE CONTINUE HANDLER FOR SQLEXCEPTION SET t_error=1; 
-     
-    #开启事务 
-    START TRANSACTION; 
-    
+    DECLARE CONTINUE HANDLER FOR SQLEXCEPTION SET t_error=1;
+
+    #开启事务
+    START TRANSACTION;
+
     select addressId into t_prevId from address where addressId = prevAddressId and userId = userId LIMIT 1 FOR UPDATE;
     select addressId into t_curId from address where addressId = curAddressId and userId = userId LIMIT 1;
-    
+
     #SELECT t_userId, t_type;
 	if t_prevId!=-1&&t_curId!=-1 THEN
      update address set isDefault = 0  where addressId = prevAddressId;
 	 update address set isDefault = 1 where addressId = curAddressId;
       #提交事务或者回滚
-	if t_error = 1 then 
+	if t_error = 1 then
 		ROLLBACK;
         SET success = false;
-	else 
+	else
          COMMIT;
 		 SET success = true;
-	end if; 
-                      
+	end if;
+
   else
       #释放独占锁
       COMMIT;
       SET success = false;
-      
+
   end if;
 END ;;
 DELIMITER ;
@@ -337,32 +337,32 @@ DECLARE t_prevId INTEGER DEFAULT -1;
 	DECLARE t_curId INTEGER DEFAULT -1;
     #定义发生异常时回滚
     DECLARE t_error INTEGER DEFAULT 0;
-    DECLARE CONTINUE HANDLER FOR SQLEXCEPTION SET t_error=1; 
-     
-    #开启事务 
-    START TRANSACTION; 
-    
+    DECLARE CONTINUE HANDLER FOR SQLEXCEPTION SET t_error=1;
+
+    #开启事务
+    START TRANSACTION;
+
     select addressId into t_prevId from address where addressId = addressId and userId = userId LIMIT 1 FOR UPDATE;
     select addressId into t_curId from address where addressId = newDefaultId and userId = userId LIMIT 1;
-    
+
     #SELECT t_userId, t_type;
 	if t_prevId!=-1&&t_curId!=-1 THEN
      delete from address where addressId = t_prevId;
 	 update address set isDefault = 1 where addressId = t_curId;
       #提交事务或者回滚
-	if t_error = 1 then 
+	if t_error = 1 then
 		ROLLBACK;
         SET success = false;
-	else 
+	else
          COMMIT;
 		 SET success = true;
-	end if; 
-                      
+	end if;
+
   else
       #释放独占锁
       COMMIT;
       SET success = false;
-      
+
   end if;
 
 END ;;
@@ -392,30 +392,30 @@ BEGIN
 	DECLARE t_userId INTEGER DEFAULT -1;
     #定义发生异常时回滚
     DECLARE t_error INTEGER DEFAULT 0;
-    DECLARE CONTINUE HANDLER FOR SQLEXCEPTION SET t_error=1; 
-     
-    #开启事务 
-    START TRANSACTION; 
-    
+    DECLARE CONTINUE HANDLER FOR SQLEXCEPTION SET t_error=1;
+
+    #开启事务
+    START TRANSACTION;
+
     select userId into t_userId  from user where userId = r_userId and type = r_type;
-    
+
     #SELECT t_userId, t_type;
 	if t_userId !=-1 THEN
 		insert into invite(inviteId,userId,code,type) values(r_inviteId,r_userId,r_code,r_type);
         #提交事务或者回滚
-		if t_error = 1 then 
+		if t_error = 1 then
 			ROLLBACK;
 			SET success = false;
-		else 
+		else
 			 COMMIT;
 			 SET success = true;
-		end if; 
+		end if;
     else
       #释放独占锁
       COMMIT;
       SET success = false;
     end if;
-    
+
 END ;;
 DELIMITER ;
 /*!50003 SET sql_mode              = @saved_sql_mode */ ;
@@ -444,10 +444,10 @@ BEGIN
 	DECLARE t_inviteId INTEGER DEFAULT -1;
     #定义发生异常时回滚
     DECLARE t_error INTEGER DEFAULT 0;
-    DECLARE CONTINUE HANDLER FOR SQLEXCEPTION SET t_error=1; 
-     
-    #开启事务 
-    START TRANSACTION; 
+    DECLARE CONTINUE HANDLER FOR SQLEXCEPTION SET t_error=1;
+
+    #开启事务
+    START TRANSACTION;
     #解决并发数据不一致，可以使用写独占锁或者CAS机制,这里使用写独占锁
     SELECT userId,type,inviteId INTO t_userId,t_type,t_inviteId FROM invite WHERE invite.code= r_code LIMIT 1 for update;
     #SELECT t_userId, t_type;
@@ -457,21 +457,21 @@ BEGIN
       #最后删除，防止由于锁造成的失败
 	  delete from invite where invite.inviteId = t_inviteId;
       #提交事务或者回滚
-	if t_error = 1 then 
+	if t_error = 1 then
 		ROLLBACK;
         SET r_userId =-1;
-		SET r_type =-1; 
-	else 
+		SET r_type =-1;
+	else
          COMMIT;
 		 SET r_userId = t_userId;
-         SET r_type = t_type; 
-	end if; 
-                      
+         SET r_type = t_type;
+	end if;
+
   else
       #释放独占锁
       COMMIT;
       SET r_userId =-1;
-	  SET r_type =-1; 
+	  SET r_type =-1;
   end if;
 END ;;
 DELIMITER ;
@@ -490,7 +490,7 @@ DELIMITER ;
 /*!50003 SET sql_mode              = 'ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION' */ ;
 DELIMITER ;;
 CREATE DEFINER=`root`@`localhost` PROCEDURE `submitOrder`(
-	IN userId INTEGER,
+	  IN userId INTEGER,
     IN addressId INTEGER,
     IN t_time  DATETIME,
     IN bookId INTEGER,
@@ -501,36 +501,36 @@ BEGIN
     DECLARE t_cartId INTEGER DEFAULT -1;
     #定义发生异常时回滚
     DECLARE t_error INTEGER DEFAULT 0;
-    DECLARE CONTINUE HANDLER FOR SQLEXCEPTION SET t_error=1; 
-     
-    #开启事务 
-    START TRANSACTION; 
-    
-    select cartId into t_cartId from bookCart where userId = userId and bookId = bookOrderId LIMIT 1 FOR UPDATE;
-    
+    DECLARE CONTINUE HANDLER FOR SQLEXCEPTION SET t_error=1;
+
+    #开启事务
+    START TRANSACTION;
+
+    select cartId into t_cartId from bookCart where userId = userId and bookId = bookId LIMIT 1 FOR UPDATE;
+
     #SELECT t_userId, t_type;
 	if t_cartId!=-1 THEN
       insert into orderTable(orderId,userId,time,addressId) values(orderId, userId,t_time,addressId);
       insert into bookOrder(bookId,orderId,orderState) values(bookId,orderId,0);
       update book set state = 0  where bookId = bookId;
-	  delete from bookCart where cartId = t_cartId;
-      
+	    delete from bookCart where cartId = t_cartId;
+
       #提交事务或者回滚
-	if t_error = 1 then 
+	if t_error = 1 then
 		ROLLBACK;
         SET success = false;
-	else 
+	else
          COMMIT;
 		 SET success = true;
-	end if; 
-                      
+	end if;
+
   else
       #释放独占锁
       COMMIT;
       SET success = false;
-      
+
   end if;
-  
+
 END ;;
 DELIMITER ;
 /*!50003 SET sql_mode              = @saved_sql_mode */ ;
@@ -549,28 +549,28 @@ DELIMITER ;
 DELIMITER ;;
 CREATE DEFINER=`root`@`localhost` PROCEDURE `successReturn`(
 	IN bookOrderId INTEGER,
-    OUT success BOOLEAN
+  OUT success BOOLEAN
 )
 BEGIN
     #定义发生异常时回滚
     DECLARE t_error INTEGER DEFAULT 0;
-    DECLARE CONTINUE HANDLER FOR SQLEXCEPTION SET t_error=1; 
-     
-    #开启事务 
-    START TRANSACTION; 
+    DECLARE CONTINUE HANDLER FOR SQLEXCEPTION SET t_error=1;
+
+    #开启事务
+    START TRANSACTION;
     #解决并发数据不一致，可以使用写独占锁或者CAS机制,这里使用写独占锁
     update bookOrder set orderState = 3 where bookOrderId = bookOrderId;
     update book,bookOrder set book.state = 2 where book.bookId = bookOrder.bookId and bookOrder.bookOrderId = bookOrderId;
-	
+
     #提交事务或者回滚
-	if t_error = 1 then 
+	if t_error = 1 then
 		ROLLBACK;
         SET success = false;
-	else 
+	else
          COMMIT;
 		 SET success = true;
-	end if; 
-    
+	end if;
+
 END ;;
 DELIMITER ;
 /*!50003 SET sql_mode              = @saved_sql_mode */ ;
@@ -592,34 +592,34 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `writeMailNumber`(
     IN mailNumber TINYTEXT,
     IN bookOrderId INTEGER,
     IN shipperCode VARCHAR(45),
-    IN success BOOLEAN
+    OUT success BOOLEAN
 )
 BEGIN
    #定义发生异常时回滚
     DECLARE t_error INTEGER DEFAULT 0;
-    DECLARE CONTINUE HANDLER FOR SQLEXCEPTION SET t_error=1; 
-     
-    #开启事务 
-    START TRANSACTION; 
+    DECLARE CONTINUE HANDLER FOR SQLEXCEPTION SET t_error=1;
+
+    #开启事务
+    START TRANSACTION;
     # direction 1 => 寄回 ; direction 0=> 借出
     # orderState 0:待借出 1：借出 2：寄回 3：交易完成
     # state : 0 ：借出 1：寄回 2：可借阅
     if direction =1 then
 		update bookOrder set mailNumberReturn = mailNumber,shipperCodeReturn = shipperCode, orderState = 2 where bookOrderId = bookOrderId;
         update book,bookOrder set book.state = 1 where book.bookId = bookOrder.bookId and bookOrder.bookOrderId = bookOrderId;
-    else 
+    else
         update bookOrder set mailNumber = mailNumber,shipperCode = shipperCode, orderState = 1 where bookOrderId = bookOrderId;
     end if;
-	
+
     #提交事务或者回滚
-	if t_error = 1 then 
+	if t_error = 1 then
 		ROLLBACK;
         SET success = false;
-	else 
+	else
          COMMIT;
 		 SET success = true;
    end if;
-   
+
 END ;;
 DELIMITER ;
 /*!50003 SET sql_mode              = @saved_sql_mode */ ;
