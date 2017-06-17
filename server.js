@@ -23,21 +23,14 @@ app.get('/checkAuth',function(req,res){
 //输入邀请码，登陆
 app.get('/login',function(req,res){
   var username = req.query.nickname,code = req.query.code;
-  //查询数据库，然后返回userId,type
-  var sql = "select * from invite where code = "+ mysql.escape(code)+";";
-  query(sql,function(err,vals,fields) {
-    if(vals.length==0){
-      res.json({type:-1,userId:-1});
-    }else{
-      var type = vals[0].type,userId = vals[0].userId;
-      sql = "delete from invite where code = "+mysql.escape(code)+";"+
-      "insert into user(nickname,type,inviteUserId) values("+mysql.escape(username)+","+mysql.escape(type)+","+mysql.escape(userId)+");"+
-      "select userId,type from user where nickname = "+mysql.escape(username)+";";
-      query(sql,function(err,vals,fields){
-        res.json(vals);
-      })
-    }
-  });
+  sql = "call login("+mysql.escape(username)+","+mysql.escape(code)+",@type,@userId);select @type,@userId;";
+  query(sql,function(err,vals,fields){
+    /*
+    [okPacket{},[RowDataPacket{}]]
+    */
+    var results = vals[1][0];
+    res.json({userId:results["@userId"],type:results["@type"]});
+  })
 })
 
 app.get('/bookSearch',function(req,res){
@@ -62,9 +55,9 @@ app.get('/bookSearch',function(req,res){
 })
 app.get('/addCart',function(req,res){
   var userId = req.query.userId,bookId = req.query.bookId,sql = "";
-  sql = "insert into bookCart(userId,bookId) values("+mysql.escape(userId)+","+mysql.escape(bookId)+");"
+  sql = "call addCart("+mysql.escape(userId)+","+mysql.escape(bookId)+",@success);select @success;";
   query(sql,function(err,vals,fields){
-    res.json({success:true})
+    res.json({success:vals[1][0]["@success"]})
   })
 })
 app.get('/borrowBooks',function(req,res){
@@ -179,10 +172,9 @@ app.get('/returnBooks',function(req,res){
 })
 app.get('/successReturn',function(req,res){
   var bookOrderId = req.query.bookOrderId,sql = "";
-  sql = "update orderState = 3 where bookOrderId = "+mysql.escape(bookOrderId)+";"+
-  "update book,bookOrder set book.state = 2 where book.bookId = bookOrder.bookId and bookOrder.bookOrderId = "+mysql.escape(bookOrderId)+";";
+  sql = "call successReturn("+mysql.escape(bookOrderId)+",@success);select @success;";
   query(sql,function(err,vals,fields){
-    res.json({success:true});
+    res.json({success:vals[1][0]["@success"]});
   })
 })
 app.get('/historyBooks',function(req,res){
@@ -261,20 +253,14 @@ app.get('/isExist',function(req,res){
      var shipper = response,sql = "";
      if(type=="寄回"){
        // 插入对应bookId和userId 的位置
-       sql = "update bookOrder set mailNumberReturn = "+mysql.escape(mailNumber)+", shipperCodeReturn = "+
-       mysql.escape(shipper.ShipperCode)+", orderState = 2 where bookOrderId = "+mysql.escape(bookOrderId)+";"+
-       "update book,bookOrder set book.state = 1 where book.bookId = bookOrder.bookId and bookOrder.bookOrderId ="+mysql.escape(bookOrderId)+";";
-       query(sql,function(err,vals,fields){
-         res.json({isExist:true,Shipper:response})
-       })
+       sql = "call writeMailNumber(1,"+mysql.escape(mailNumber)+","+mysql.escape(bookOrderId)+","+mysql.escape(shipper.ShipperCode)+",@success);select @success;";
      }else{
        //借出
-       sql = "update bookOrder set mailNumber = "+mysql.escape(mailNumber)+", shipperCode = "+
-       mysql.escape(shipper.ShipperCode)+", orderState = 1 where bookOrderId = "+mysql.escape(bookOrderId)+";";
-       query(sql,function(err,vals,fields){
-         res.json({isExist:true,Shipper:response})
-       })
+       sql = "call writeMailNumber(0,"+mysql.escape(mailNumber)+","+mysql.escape(bookOrderId)+","+mysql.escape(shipper.ShipperCode)+",@success);select @success;";
      }
+     query(sql,function(err,vals,fields){
+       res.json({isExist:vals[1][0]["@success"],Shipper:response})
+     })
   }).catch(function(){
      res.json({isExist:false});
   });
@@ -351,17 +337,17 @@ app.get('/getDefaultAddress',function(req,res){
 app.get('/submitOrders',function(req,res){
   var userId = req.query.userId, bookIdList = JSON.parse(req.query.bookIdList), addressId = req.query.addressId, sql = "";
   var factory = require('./server/uuid.js');
-  var currentTime = moment().local().format("YYYY-MM-DD HH:mm:ss");
+  var currentTime = moment().local().format("YYYY-MM-DD HH:mm:ss"),count = 0;
 	for(let i = 0; i < bookIdList.length; i++){
 		let uid = factory.uuid(9,10);
-    sql += "insert into orderTable(orderId,userId,time,addressId) values("+mysql.escape(uid)+","+mysql.escape(userId)+","+mysql.escape(currentTime)+","+mysql.escape(addressId)+");";
-    sql += "insert into bookOrder(bookId,orderId,orderState) values("+mysql.escape(bookIdList[i])+","+mysql.escape(uid)+","+"0"+");";
-    sql += "update book set state = 0  where bookId = "+mysql.escape(bookIdList[i])+";";
-    sql += "delete from bookCart where userId = "+mysql.escape(userId)+" and bookId = "+mysql.escape(bookIdList[i])+";";
+    sql = "call submitOrder("+mysql.escape(userId)+","+mysql.escape(addressId)+","+mysql.escape(currentTime)+","+bookIdList[i]+
+    ","+mysql.escape(uid)+",@success);select @success";
+    query(sql,function(err,vals,fields){
+        //无需理会究竟添加成功没，只需要都执行完毕即可。
+        count++;
+        if(count==bookIdList.length) res.json({success:true});
+    });
   }
-  query(sql,function(err,vals,fields){
-      res.json({success:true});
-  });
 })
 app.get('/deleteBooks',function(req,res){
   var userId = req.query.userId, bookId = req.query.bookId,sql = "";
@@ -386,20 +372,16 @@ app.get('/getOwnAddress',function(req,res){
 })
 app.get('/changeDefaultAddress',function(req,res){
   var userId = req.query.userId, prevId = req.query.prevIndex,curId = req.query.curIndex,sql = "";
-  sql = "update address set isDefault = 0  where addressId = "+mysql.escape(prevId)+";";
-  sql += "update address set isDefault = 1 where addressId = "+mysql.escape(curId)+";";
+  sql = "call changeDefaultAddress("+mysql.escape(userId)+","+mysql.escape(prevId)+","+mysql.escape(curId)+",@success);select @success;";
   query(sql,function(err,vals,fields){
-    res.json({success:true});
+    res.json({success:vals[1][0]["@success"]});
   })
 })
 app.get('/deleteOwnAddress',function(req,res){
   var userId = req.query.userId,newDefaultId = req.query.newDefaultId,addressId = req.query.addressId,sql = "";
-  sql = "delete from address where userId = "+mysql.escape(userId)+" and addressId = "+mysql.escape(addressId)+";";
-  if(newDefaultId!=-1){
-    sql +="update address set isDefault = 1 where addressId ="+mysql.escape(newDefaultId)+";";
-  }
+  sql = "call deleteOwnAddress("+mysql.escape(userId)+","+mysql.escape(newDefaultId)+","+mysql.escape(addressId)+",@success);select @success;";
   query(sql,function(err,vals,fields){
-    res.json({success:true});
+    res.json({success:vals[1][0]["@success"]});
   })
 })
 app.get('/addAddress',function(req,res){
@@ -445,18 +427,13 @@ app.post('/addBooks',upload.single('file'),function(req,res){
 })
 app.get('/getCode',function(req,res){
   var userId = req.query.userId, type = req.query.type, key = req.query.key, insertType = -1,sql = "";
-  sql = "select * from user where userId = "+mysql.escape(userId)+" and type = "+mysql.escape(type)+";";
   if(key == 4) insertType = 2;
   else if(key == 5) insertType = 1;
+  var factory = require('./server/uuid.js');
+  var code = factory.uuid(6,16),uuid =factory.uuid(9,10) ;
+  sql = "call getCode("+mysql.escape(uuid)+","+mysql.escape(userId)+","+mysql.escape(code)+","+mysql.escape(insertType)+",@success);select @success;";
   query(sql,function(err,vals,fields){
-    if(vals.length==1){
-      var factory = require('./server/uuid.js');
-      var code = factory.uuid(6,16),uuid =factory.uuid(9,10) ;
-      sql = "insert into invite(inviteId,userId,code,type) values("+mysql.escape(uuid)+","+mysql.escape(userId)+","+mysql.escape(code)+","+mysql.escape(insertType)+");";
-      query(sql,function(err,vals,fields){
-          res.json({success:true,code:code});
-      })
-    }
+      res.json({success:vals[1][0]["@success"],code:code});
   })
 })
 // respond with "hello world" when a GET request is made to the homepage
