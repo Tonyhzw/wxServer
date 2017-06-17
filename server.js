@@ -134,9 +134,10 @@ app.get('/returnBooks',function(req,res){
               if(vals2.length!=0){
                 results.push(temp);
               }
-              if((vals.length-1)==index) res.send({orderList:results});
+              if((vals1.length-1)==index) res.send({orderList:results});
             })
           })
+          if(vals1.length == 0) res.send({orderList:results});
         })
       })
       if(vals.length == 0) res.send({orderList:results});
@@ -162,9 +163,10 @@ app.get('/returnBooks',function(req,res){
               if(vals2.length!=0){
                 results.push(temp);
               }
-              if((vals.length-1)==index) res.json({orderList:results});
+              if((vals1.length-1)==index) res.json({orderList:results});
             })
           })
+          if(vals1.length == 0) res.send({orderList:results});
         })
       })
       if(vals.length==0) res.json({orderList:results});
@@ -292,6 +294,7 @@ app.get('/getOrderDetail',function(req,res){
           if(index == (datalist.length-1)) res.json({success:true,bookList:results});
         })
     })
+    if(datalist.length == 0) res.send({success:true,bookList:results});
   })
 })
 app.get('/getMailDetail',function(req,res){
