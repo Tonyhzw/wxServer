@@ -341,7 +341,7 @@ app.get('/submitOrders',function(req,res){
   var currentTime = moment().local().format("YYYY-MM-DD HH:mm:ss"),count = 0;
 	for(let i = 0; i < bookIdList.length; i++){
 		let uid = factory.uuid(9,10);
-    sql = "call submitOrder("+mysql.escape(userId)+","+mysql.escape(addressId)+","+mysql.escape(currentTime)+","+bookIdList[i]+
+    sql = "call submitOrder("+mysql.escape(userId)+","+mysql.escape(addressId)+","+mysql.escape(currentTime)+","+mysql.escape(bookIdList[i])+
     ","+mysql.escape(uid)+",@success);select @success;";
     query(sql,function(err,vals,fields){
         //无需理会究竟添加成功没，只需要都执行完毕即可。

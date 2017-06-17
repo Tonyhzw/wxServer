@@ -491,11 +491,11 @@ DELIMITER ;
 /*!50003 SET sql_mode              = 'ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION' */ ;
 DELIMITER ;;
 CREATE DEFINER=`root`@`localhost` PROCEDURE `submitOrder`(
-	  IN userId INTEGER,
-    IN addressId INTEGER,
+	  IN t_userId INTEGER,
+    IN t_addressId INTEGER,
     IN t_time  DATETIME,
-    IN bookId INTEGER,
-    IN orderId INTEGER,
+    IN t_bookId INTEGER,
+    IN t_orderId INTEGER,
     OUT success BOOLEAN
 )
 BEGIN
@@ -507,13 +507,13 @@ BEGIN
     #开启事务
     START TRANSACTION;
 
-    select cartId into t_cartId from bookCart where userId = userId and bookId = bookId LIMIT 1 FOR UPDATE;
+    select cartId into t_cartId from bookCart where userId = t_userId and bookId = t_bookId LIMIT 1 FOR UPDATE;
 
     #SELECT t_userId, t_type;
 	if t_cartId!=-1 THEN
-      insert into orderTable(orderId,userId,time,addressId) values(orderId, userId,t_time,addressId);
-      insert into bookOrder(bookId,orderId,orderState) values(bookId,orderId,0);
-      update book set state = 0  where bookId = bookId;
+      insert into orderTable(orderId,userId,time,addressId) values(t_orderId,t_userId,t_time,t_addressId);
+      insert into bookOrder(bookId,orderId,orderState) values(t_bookId,t_orderId,0);
+      update book set book.state = 0  where book.bookId = t_bookId;
 	    delete from bookCart where cartId = t_cartId;
 
       #提交事务或者回滚
