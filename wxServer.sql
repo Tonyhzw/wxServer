@@ -228,6 +228,7 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `addCart`(
 BEGIN
 	DECLARE t_userId INTEGER DEFAULT -1;
 	DECLARE t_bookId INTEGER DEFAULT -1;
+  DECLARE t_cartId INTEGER DEFAULT -1;
     #定义发生异常时回滚
     DECLARE t_error INTEGER DEFAULT 0;
     DECLARE CONTINUE HANDLER FOR SQLEXCEPTION SET t_error=1;
@@ -235,11 +236,11 @@ BEGIN
     #开启事务
     START TRANSACTION;
 
-    select userId into t_userId from user where userId = userId LIMIT 1 FOR UPDATE;
-    select bookId into t_bookId from book where bookId = bookId  LIMIT 1 FOR UPDATE;
-
-    #SELECT t_userId, t_type;
-	if t_userId!=-1&&t_bookId!=-1 THEN
+    select userId into t_userId from user where userId = userId LIMIT 1;
+    select bookId into t_bookId from book where bookId = bookId  LIMIT 1;
+    select cartId into t_cartId from bookCart where userId = userId and bookId = bookId LIMIT 1 FOR UPDATE;
+    #确保每次提交的只有一份数据
+	if (t_userId!=-1&&t_bookId!=-1)&&t_cartId==-1 THEN
 		insert into bookCart(userId,bookId) values(userId,bookId);
       #提交事务或者回滚
 	if t_error = 1 then
