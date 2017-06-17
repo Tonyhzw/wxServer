@@ -120,7 +120,7 @@ app.get('/returnBooks',function(req,res){
     query(sql,function(err,vals,fields){
       vals.forEach(function(val,index){
         var time = moment(val.time).format("YYYY-MM-DD HH:mm:ss");
-        sql = "select mailNumberReturn from bookOrder where orderId = "+val.orderId+" and orderState = 2;";
+        sql = "select mailNumberReturn from bookOrder where orderId = "+mysql.escape(val.orderId)+" and orderState = 2;";
         query(sql,function(err,vals1,fields){
           vals1.forEach(function(val){
             var temp = {};
@@ -148,7 +148,7 @@ app.get('/returnBooks',function(req,res){
     query(sql,function(err,vals,fields){
       vals.forEach(function(val,index){
         var time = moment(val.time).format("YYYY-MM-DD HH:mm:ss");
-        sql = "select mailNumberReturn from bookOrder where orderId = "+val.orderId+" and orderState = 2;";
+        sql = "select mailNumberReturn from bookOrder where orderId = "+mysql.escape(val.orderId)+" and orderState = 2;";
         query(sql,function(err,vals1,fields){
           vals1.forEach(function(val){
             var temp = {};
