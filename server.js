@@ -72,7 +72,7 @@ app.get('/borrowBooks',function(req,res){
         var temp = {};
         temp.orderId = val.orderId;
         temp.time = moment(val.time).format("YYYY-MM-DD HH:mm:ss");
-        sql = "select bookOrder.bookOrderId,book.* from bookOrder, book where orderId = "+val.orderId+" and bookOrder.bookId = book.bookId and (orderState = 0 or orderState = 1);";
+        sql = "select bookOrder.bookOrderId,book.* from bookOrder, book where orderId = "+mysql.escape(val.orderId)+" and bookOrder.bookId = book.bookId and (orderState = 0 or orderState = 1);";
         query(sql,function(err,vals2,fields){
           temp.bookList = vals2;
           //若当前为空时
@@ -95,7 +95,7 @@ app.get('/borrowBooks',function(req,res){
       vals.forEach(function(val,index){
         var temp = {};
         temp.time = val.time,temp.orderId = val.orderId;
-        sql = "select bookOrder.bookOrderId,book.* from bookOrder, book where bookOrder.orderId = "+val.orderId+" and bookOrder.bookId = book.bookId and book.userId = "+mysql.escape(userId)+" and (orderState = 0 or orderState = 1);";
+        sql = "select bookOrder.bookOrderId,book.* from bookOrder, book where bookOrder.orderId = "+mysql.escape(val.orderId)+" and bookOrder.bookId = book.bookId and book.userId = "+mysql.escape(userId)+" and (orderState = 0 or orderState = 1);";
         query(sql,function(err,vals2,fields){
           temp.bookList=vals2;
           //若当前为空时
