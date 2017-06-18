@@ -136,13 +136,13 @@ app.get('/returnBooks',function(req,res){
               if(vals2.length!=0){
                 results.push(temp);
               }
-              if(((vals.length-1)==index)&&((vals1.length-1)==idx)) res.send({orderList:results});
+              if(((vals.length-1)==index)&&((vals1.length-1)==idx)) res.json({orderList:results});
             })
-          })
-          if(vals1.length == 0) res.send({orderList:results});
+          });
+          if(vals1.length == 0) res.json({orderList:results});
         })
       })
-      if(vals.length == 0) res.send({orderList:results});
+      if(vals.length == 0) res.json({orderList:results});
     })
   }else{
     //归还借出
@@ -168,7 +168,7 @@ app.get('/returnBooks',function(req,res){
               if(((vals.length-1)==index)&&(idx==(vals1.length-1))) res.json({orderList:results});
             })
           })
-          if(vals1.length == 0) res.send({orderList:results});
+          if(vals1.length == 0) res.json({orderList:results});
         })
       })
       if(vals.length==0) res.json({orderList:results});
