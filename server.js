@@ -122,7 +122,7 @@ app.get('/returnBooks',function(req,res){
         var time = moment(val.time).format("YYYY-MM-DD HH:mm:ss");
         sql = "select mailNumberReturn from bookOrder where orderId = "+mysql.escape(val.orderId)+" and orderState = 2;";
         query(sql,function(err,vals1,fields){
-          vals1.forEach(function(val){
+          vals1.forEach(function(val,idx){
             var temp = {};
             temp.time = time;
             temp.orderId = val.mailNumberReturn;
@@ -134,7 +134,7 @@ app.get('/returnBooks',function(req,res){
               if(vals2.length!=0){
                 results.push(temp);
               }
-              if((vals1.length-1)==index) res.send({orderList:results});
+              if(((vals.length-1)==index)&&((vals1.length-1)==idx)) res.send({orderList:results});
             })
           })
           if(vals1.length == 0) res.send({orderList:results});
@@ -151,7 +151,7 @@ app.get('/returnBooks',function(req,res){
         var time = moment(val.time).format("YYYY-MM-DD HH:mm:ss");
         sql = "select mailNumberReturn from bookOrder where orderId = "+mysql.escape(val.orderId)+" and orderState = 2;";
         query(sql,function(err,vals1,fields){
-          vals1.forEach(function(val){
+          vals1.forEach(function(val,idx){
             var temp = {};
             temp.time = time;
             temp.orderId = val.mailNumberReturn;
@@ -163,7 +163,7 @@ app.get('/returnBooks',function(req,res){
               if(vals2.length!=0){
                 results.push(temp);
               }
-              if((vals1.length-1)==index) res.json({orderList:results});
+              if(((vals.length-1)==index)&&(idx==(vals1.length-1))) res.json({orderList:results});
             })
           })
           if(vals1.length == 0) res.send({orderList:results});
@@ -198,7 +198,7 @@ app.get('/historyBooks',function(req,res){
           if(vals2.length!=0){
             results.push(temp);
           }
-          if(index == (vals.length-1))res.json({orderList:results});
+          if(index == (vals.length-1))  res.json({orderList:results});
         })
       })
       if(vals.length == 0) res.json({orderList:results});
@@ -209,7 +209,7 @@ app.get('/historyBooks',function(req,res){
     var results=[];
     query(sql,function(err,vals,fields){
       var temp = {};
-      vals.forEach(function(val){
+      vals.forEach(function(val,index){
         temp.time = moment(val.time).format("YYYY-MM-DD HH:mm:ss"),temp.orderId = val.orderId;
         sql = "select bookOrder.bookOrderId,book.* from bookOrder join book where bookOrder.orderId = "+val.orderId+
         " and bookOrder.bookId = book.bookId and book.userId = "+mysql.escape(userId)+
