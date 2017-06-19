@@ -271,7 +271,11 @@ app.get('/returnBooks', function(req, res) {
                   })
                   Promise.all(promiseArr).then(function(vals){
                     vals.forEach(function(val){
-                      if(val!='#') results.push(val);
+                      if(val!='#'){
+                        val.forEach(function(item){
+                          results.push(item);
+                        })
+                      }
                     })
                     return res.json({
                         success:true,
@@ -343,7 +347,11 @@ app.get('/returnBooks', function(req, res) {
                   })
                   Promise.all(promiseArr).then(function(vals){
                     vals.forEach(function(val){
-                      if(val!='#') results.push(val);
+                      if(val!='#'){
+                        val.forEach(function(item){
+                          results.push(val);
+                        })
+                      }
                     })
                     return res.json({
                         success:true,
