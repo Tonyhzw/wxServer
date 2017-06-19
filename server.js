@@ -744,8 +744,8 @@ app.get('/submitOrders', function(req, res) {
     var factory = require('./server/uuid.js');
     var currentTime = moment().local().format("YYYY-MM-DD HH:mm:ss"),
         count = 0,promiseArr=[];
+    var uid = factory.uuid(9, 10);
     for (let i = 0; i < bookIdList.length; i++) {
-        let uid = factory.uuid(9, 10);
         sql = "call submitOrder(" + mysql.escape(userId) + "," + mysql.escape(addressId) + "," + mysql.escape(currentTime) + "," + mysql.escape(bookIdList[i]) +
             "," + mysql.escape(uid) + ",@success);select @success;";
         promiseArr.push(new Promise(function(resolve,reject){
