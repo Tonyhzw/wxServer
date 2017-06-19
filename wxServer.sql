@@ -510,7 +510,6 @@ BEGIN
 
     select cartId into t_cartId from bookCart where userId = r_userId and bookId = r_bookId LIMIT 1 FOR UPDATE;
 
-    #SELECT t_userId, t_type;
 	if t_cartId!=-1 THEN
       select orderId into t_orderId from orderTable where orderId = r_orderId;
       if t_orderId =-1 THEN
@@ -523,19 +522,16 @@ BEGIN
       #提交事务或者回滚
 	if t_error = 1 then
 		ROLLBACK;
-    	#select 0;
-	SET success = 0;
+    SET success = false;
 	else
     COMMIT;
-	#select 1;
-        SET success = 1;
+		SET success = true;
 	end if;
 
   else
       #释放独占锁
       COMMIT;
-      #select -1;
-      SET success = -1;
+      SET success = false;
 
   end if;
 
