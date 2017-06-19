@@ -522,18 +522,15 @@ BEGIN
       #提交事务或者回滚
 	if t_error = 1 then
 		ROLLBACK;
-    select 0;
     SET success = false;
 	else
     COMMIT;
-    select 1;
 		SET success = true;
 	end if;
 
   else
       #释放独占锁
       COMMIT;
-      select -1;
       SET success = false;
 
   end if;
