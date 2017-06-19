@@ -202,20 +202,21 @@ app.get('/historyBooks',function(req,res){
     var results=[];
     query(sql,function(err,vals,fields){
       var temp = {};
-      vals.forEach(function(val,index){
-        temp.orderId = val.orderId;
-        temp.time = moment(val.time).format("YYYY-MM-DD HH:mm:ss");
-        sql = "select bookOrder.bookOrderId,book.* from bookOrder join book where orderId = "+val.orderId+" and bookOrder.bookId = book.bookId and orderState = 3;";
-        query(sql,function(err,vals2,fields){
-          temp.bookList = vals;
-          //若当前为空时
-          if(vals2.length!=0){
-            results.push(temp);
-          }
-          if(index == (vals.length-1))  res.json({orderList:results});
+      if(vals.length==0){
+        res.json({orderList:results});
+      }else{
+        vals.forEach(function(val,index){
+          temp.orderId = val.orderId;
+          temp.time = moment(val.time).format("YYYY-MM-DD HH:mm:ss");
+          sql = "select bookOrder.bookOrderId,book.* from bookOrder join book where orderId = "+val.orderId+" and bookOrder.bookId = book.bookId and orderState = 3;";
+          query(sql,function(err,vals2,fields){
+            temp.bookList = vals;
+            //若当前为空时
+            if(vals2.length!=0) results.push(temp);
+            if(index == (vals.length-1))  res.json({orderList:results});
+          })
         })
-      })
-      if(vals.length == 0) res.json({orderList:results});
+      }
     })
   }else{
     //借出的历史记录
@@ -223,21 +224,22 @@ app.get('/historyBooks',function(req,res){
     var results=[];
     query(sql,function(err,vals,fields){
       var temp = {};
-      vals.forEach(function(val,index){
-        temp.time = moment(val.time).format("YYYY-MM-DD HH:mm:ss"),temp.orderId = val.orderId;
-        sql = "select bookOrder.bookOrderId,book.* from bookOrder join book where bookOrder.orderId = "+val.orderId+
-        " and bookOrder.bookId = book.bookId and book.userId = "+mysql.escape(userId)+
-        " and orderState = 3;";
-        query(sql,function(err,vals2,fields){
-          temp.bookList=vals2;
-          //若当前为空时
-          if(vals2.length!=0){
-            results.push(temp);
-          }
-          if((vals.length-1) == index)  res.json({orderList:results});
+      if(vals.length==0){
+        vals.forEach(function(val,index){
+          temp.time = moment(val.time).format("YYYY-MM-DD HH:mm:ss"),temp.orderId = val.orderId;
+          sql = "select bookOrder.bookOrderId,book.* from bookOrder join book where bookOrder.orderId = "+val.orderId+
+          " and bookOrder.bookId = book.bookId and book.userId = "+mysql.escape(userId)+
+          " and orderState = 3;";
+          query(sql,function(err,vals2,fields){
+            temp.bookList=vals2;
+            //若当前为空时
+            if(vals2.length!=0) results.push(temp);
+            if((vals.length-1) == index)  res.json({orderList:results});
+          })
         })
-      })
-      if(vals.length == 0) res.json({orderList:results});
+      }else{
+        res.json({orderList:results});
+      }
     })
   }
 })
@@ -299,16 +301,19 @@ app.get('/getOrderDetail',function(req,res){
   sql = "select bookOrder.bookOrderId,bookOrder.orderState,bookOrder.mailNumber,bookOrder.shipperCode,orderTable.userId from bookOrder,orderTable where bookOrder.orderId = "+mysql.escape(orderId)+" and orderTable.orderId = "+mysql.escape(orderId)+";";
   query(sql,function(err,vals,fields){
     var datalist = vals,results = [];
-    datalist.forEach(function(val,index){
-      var mailNumber = val.mailNumber, bookOrderId = val.bookOrderId,orderState = val.orderState,shipperCode = val.shipperCode,userId = val.userId;
-        sql = "select bookOrder.bookOrderId,book.* from bookOrder,book where bookOrder.bookOrderId = "+ mysql.escape(bookOrderId)+
-        " and bookOrder.bookId = book.bookId;";
-        query(sql,function(err,vals,fields){
-          results.push({userId:userId,mailNumber:mailNumber,shipperCode:shipperCode,status:orderStateList[orderState],book:vals});
-          if(index == (datalist.length-1)) res.json({success:true,bookList:results});
-        })
-    })
-    if(datalist.length == 0) res.send({success:true,bookList:results});
+    if(datalist.length==0){
+      res.send({success:true,bookList:results});
+    }else{
+      datalist.forEach(function(val,index){
+        var mailNumber = val.mailNumber, bookOrderId = val.bookOrderId,orderState = val.orderState,shipperCode = val.shipperCode,userId = val.userId;
+          sql = "select bookOrder.bookOrderId,book.* from bookOrder,book where bookOrder.bookOrderId = "+ mysql.escape(bookOrderId)+
+          " and bookOrder.bookId = book.bookId;";
+          query(sql,function(err,vals,fields){
+            results.push({userId:userId,mailNumber:mailNumber,shipperCode:shipperCode,status:orderStateList[orderState],book:vals});
+            if(index == (datalist.length-1)) res.json({success:true,bookList:results});
+          })
+      })
+    }
   })
 })
 app.get('/getMailDetail',function(req,res){
