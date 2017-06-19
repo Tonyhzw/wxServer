@@ -25,7 +25,7 @@ app.get('/checkAuth', function(req, res) {
                   userId: -1
               });
           } else {
-              return res.json(success:true,type:vals[0].type,userId:vals[0].userId);
+              return res.json({success:true,type:vals[0].type,userId:vals[0].userId});
           }
         }
     });
@@ -154,7 +154,7 @@ app.get('/borrowBooks', function(req, res) {
             }else{
               if(vals.length==0){
                 return res.json({
-                    success:true;
+                    success:true,
                     orderList: results
                 });
               }else{
