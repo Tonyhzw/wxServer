@@ -119,29 +119,34 @@ app.get('/borrowBooks', function(req, res) {
                     orderList: results
                 })
               }else{
+                var promiseArr=[];
                 vals.forEach(function(val, index) {
                     var temp = {};
                     temp.orderId = val.orderId;
                     temp.time = moment(val.time).format("YYYY-MM-DD HH:mm:ss");
                     sql = "select bookOrder.bookOrderId,book.* from bookOrder, book where bookOrder.orderId = "+
                     mysql.escape(val.orderId) + " and bookOrder.bookId = book.bookId and (bookOrder.orderState = 0 or bookOrder.orderState = 1);";
-                    query(sql, function(err, vals2, fields) {
-                        if(err){
-                            return res.json({success:false});
-                        }else{
-                            temp.bookList = vals2;
-                            if (vals2.length!=0) results.push(temp);
-                            console.dir("index "+index,results);
-                            //若都执行完毕时
-                            if (index==(vals.length-1)) {
-                                console.dir("finally:",results);
-                                return res.json({
-                                    success:true,
-                                    orderList: results
-                                });
-                            }
-                        }
-                    })
+                    promiseArr.push(new Promise(function(resolve,reject){
+                      query(sql, function(err, vals2, fields) {
+                          if(err){
+                              reject();
+                          }else{
+                              temp.bookList = vals2;
+                              resolve(temp);
+                          }
+                      })
+                    }))
+                })
+                Promise.all(promiseArr).then(function(vals2){
+                    return res.json({
+                      success:true,
+                      orderList: vals2
+                    });
+                  }).catch(function(){
+                    return res.json({
+                      success:false
+                    });
+                  });
                 })
               }
             }
