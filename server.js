@@ -374,7 +374,7 @@ app.get('/historyBooks', function(req, res) {
                       temp.orderId = val.orderId;
                       temp.time = moment(val.time).format("YYYY-MM-DD HH:mm:ss");
                       sql = "select bookOrder.bookOrderId,book.* from bookOrder join book where orderId = " + val.orderId + " and bookOrder.bookId = book.bookId and orderState = 3;";
-                      promise.push(new Promise(function(resolve,reject){
+                      promiseArr.push(new Promise(function(resolve,reject){
                         query(sql, function(err, vals2, fields) {
                             if(err){
                               reject();
