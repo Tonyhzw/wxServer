@@ -132,15 +132,16 @@ app.get('/borrowBooks', function(req, res) {
                               reject();
                           }else{
                               temp.bookList = vals2;
-                              resolve(temp);
+                              if(vals2.length>0) resolve(temp);
+                              else resolve();
                           }
                       })
                     }))
                 })
-                Promise.all(promiseArr).then(function(vals2){
+                Promise.all(promiseArr).then(function(vals){
                     return res.json({
                       success:true,
-                      orderList: vals2
+                      orderList: vals
                     });
                   }).catch(function(){
                     return res.json({
@@ -164,32 +165,36 @@ app.get('/borrowBooks', function(req, res) {
                     orderList: results
                 });
               }else{
+                var promiseArr =[];
                 vals.forEach(function(val, index) {
                     var temp = {};
                     temp.time = moment(val.time).format("YYYY-MM-DD HH:mm:ss"), temp.orderId = val.orderId;
                     sql = "select bookOrder.bookOrderId,book.* from bookOrder, book where bookOrder.orderId = "+
                     mysql.escape(val.orderId) + " and bookOrder.bookId = book.bookId and book.userId = " + mysql.escape(userId)+
                     " and (bookOrder.orderState = 0 or bookOrder.orderState = 1);";
-                    query(sql, function(err, vals2, fields) {
+                    promiseArr.push(new Promise(function(resolve,reject){
+                      query(sql, function(err, vals2, fields) {
                         if(err){
-                          return res.json({success:false});
+                          reject();
                         }else{
                           temp.bookList = vals2;
                           //若当前为空时
-                          if (vals2.length!=0) {
-                              results.push(temp);
-                          }
-                          console.dir("index "+index,results);
-                          if ((vals.length-1) == index) {
-                              console.dir("finally ",results);
-                              return res.json({
-                                  success:true,
-                                  orderList: results
-                              });
-                          }
+                          if (vals2.length>0) resolve(temp);
+                          else resolve(temp);
                         }
-                    })
+                      })
+                   }))
                 })
+                Promise.all(promiseArr).then(function(vals){
+                  return res.json({
+                      success:true,
+                      orderList: vals
+                  });
+                }).catch(function(){
+                  return res.json({
+                      success:false
+                  });
+                });
               }
             }
         })
@@ -213,46 +218,53 @@ app.get('/returnBooks', function(req, res) {
                       orderList: results
                   });
               } else {
+                  var promiseArr = [];
                   vals.forEach(function(val, index) {
                       var time = moment(val.time).format("YYYY-MM-DD HH:mm:ss");
                       sql = "select mailNumberReturn from bookOrder where orderId = " + mysql.escape(val.orderId) + " and orderState = 2;";
-                      query(sql, function(err, vals1, fields) {
-                          if(err){
-                            return res.json({
-                              success:false
-                            })
-                          }else{
-                            vals1.forEach(function(val, idx) {
-                                    var temp = {};
-                                    temp.time = time;
-                                    temp.orderId = val.mailNumberReturn;
-                                    sql = "select bookOrder.bookOrderId,book.* from bookOrder join book where bookOrder.mailNumberReturn=" + mysql.escape(val.mailNumberReturn) +
-                                        " and bookOrder.bookId = book.bookId;";
-                                    query(sql, function(err, vals2, fields) {
-                                        if(err){
-                                          return res.json({success:false});
-                                        }else{
-                                          temp.bookList = vals2;
-                                          //若当前为空时
-                                          if (vals2.length != 0) {
-                                              results.push(temp);
-                                          }
-                                          if (((vals.length-1) == index) && ((vals1.length-1) == idx))
-                                            return res.json({
-                                                success:true,
-                                                orderList: results
-                                            });
-                                       }
-                                    })
-                                })
-                            //若最后一个为null时，则无法进去正常的res.json，此时由外部给出
-                            if(index==(vals.length-1))
-                              return res.json({
-                                success:true,
-                                orderList: results
+                      promiseArr.push(new Promise(function(resolve,reject){
+                        query(sql, function(err, vals1, fields) {
+                            if(err){
+                              reject();
+                            }else{
+                              var promiseArr2 =[];
+                              vals1.forEach(function(val, idx) {
+                                  var temp = {};
+                                  temp.time = time;
+                                  temp.orderId = val.mailNumberReturn;
+                                  sql = "select bookOrder.bookOrderId,book.* from bookOrder join book where bookOrder.mailNumberReturn=" + mysql.escape(val.mailNumberReturn) +
+                                      " and bookOrder.bookId = book.bookId;";
+                                  promiseArr2.push(new Promise(function(resolve,reject){
+                                      query(sql, function(err, vals2, fields) {
+                                          if(err){
+                                            reject();
+                                          }else{
+                                            temp.bookList = vals2;
+                                            //若当前为空时
+                                            if (vals2.length>0) resolve(temp);
+                                            else resolve();
+                                         }
+                                      })
+                                  }))
+                              })
+                              Promise.all(promiseArr2).then(function(vals){
+                                resolve(vals);
+                              }).catch(function(){
+                                reject();
                               });
-                          }
-                      })
+                            }
+                        })
+                      }))
+                  })
+                  Promise.all(promiseArr).then(function(vals){
+                    return res.json({
+                        success:true,
+                        orderList: vals
+                    });
+                  }).catch(function(){
+                    return res.json({
+                        success:false
+                    });
                   })
               }
             }
@@ -271,46 +283,54 @@ app.get('/returnBooks', function(req, res) {
                       orderList: results
                   });
               } else {
+                  var promiseArr=[];
                   vals.forEach(function(val, index) {
                       var time = moment(val.time).format("YYYY-MM-DD HH:mm:ss");
                       sql = "select mailNumberReturn from bookOrder where orderId = " + mysql.escape(val.orderId) + " and orderState = 2;";
-                      query(sql, function(err, vals1, fields) {
-                          if(err){
-                            return res.json({success:false});
-                          }else{
-                            vals1.forEach(function(val, idx) {
-                                    var temp = {};
-                                    temp.time = time;
-                                    temp.orderId = val.mailNumberReturn;
-                                    sql = "select bookOrder.bookOrderId,book.* from bookOrder join book where bookOrder.mailNumberReturn=" + mysql.escape(val.mailNumberReturn) +
-                                        " and book.userId = " + mysql.escape(userId) + " and bookOrder.bookId = book.bookId;";
+                      promiseArr.push(new Promise(function(resolve,reject){
+                        query(sql, function(err, vals1, fields) {
+                            if(err){
+                              reject();
+                            }else{
+                              var promiseArr2=[];
+                              vals1.forEach(function(val, idx) {
+                                  var temp = {};
+                                  temp.time = time;
+                                  temp.orderId = val.mailNumberReturn;
+                                  sql = "select bookOrder.bookOrderId,book.* from bookOrder join book where bookOrder.mailNumberReturn=" + mysql.escape(val.mailNumberReturn) +
+                                      " and book.userId = " + mysql.escape(userId) + " and bookOrder.bookId = book.bookId;";
+                                  promiseArr2.push(new Promise(function(resolve,reject){
                                     query(sql, function(err, vals2, fields) {
                                         if(err){
-                                          return res.json({success:false});
+                                          reject();
                                         }else{
                                           temp.bookList = vals2;
                                           //若当前为空时
-                                          if (vals2.length != 0) {
-                                              results.push(temp);
-                                          }
-                                          if (((vals.length - 1) == index) && (idx == (vals1.length - 1)))
-                                            return res.json({
-                                                success:true,
-                                                orderList: results
-                                            });
+                                          if (vals2.length>0) resolve(temp);
+                                          else resolve();
                                         }
                                     })
-                                })
-                            //最后一个为null时返回
-                            if ((vals.length-1) == index) {
-                                return res.json({
-                                    success:true,
-                                    orderList: results
-                                });
+                                  }))
+                              })
+                              Promise.all(promiseArr2).then(function(vals){
+                                resolve(vals);
+                              }).catch(function(){
+                                reject();
+                              });
                             }
-                          }
-                      })
+                        })
+                      }))
                   })
+                  Promise.all(promiseArr).then(function(vals){
+                    return res.json({
+                        success:true,
+                        orderList: vals
+                    });
+                  }).catch(function(){
+                    return res.json({
+                        success:false
+                    });
+                  });
               }
             }
         })
@@ -349,25 +369,34 @@ app.get('/historyBooks', function(req, res) {
                       orderList: results
                   });
               } else {
+                  var promiseArr=[];
                   vals.forEach(function(val, index) {
                       temp.orderId = val.orderId;
                       temp.time = moment(val.time).format("YYYY-MM-DD HH:mm:ss");
                       sql = "select bookOrder.bookOrderId,book.* from bookOrder join book where orderId = " + val.orderId + " and bookOrder.bookId = book.bookId and orderState = 3;";
-                      query(sql, function(err, vals2, fields) {
-                          if(err){
-                            return res.json({success:false});
-                          }else{
-                            temp.bookList = vals;
-                            //若当前为空时
-                            if (vals2.length != 0) results.push(temp);
-                            if (index == (vals.length-1))
-                              return res.json({
-                                  success:true,
-                                  orderList: results
-                              });
-                          }
-                      })
+                      promise.push(new Promise(function(resolve,reject){
+                        query(sql, function(err, vals2, fields) {
+                            if(err){
+                              reject();
+                            }else{
+                              temp.bookList = vals;
+                              //若当前为空时
+                              if (vals2.length>0) resolve(temp);
+                              else resolve();
+                            }
+                        })
+                      }))
                   })
+                  Promise.all(promiseArr).then(function(vals){
+                    return res.json({
+                        success:true,
+                        orderList: vals
+                    });
+                  }).catch(function(){
+                    return res.json({
+                        success:false
+                    });
+                  });
               }
             }
         })
@@ -386,26 +415,35 @@ app.get('/historyBooks', function(req, res) {
                       orderList: results
                   });
               } else {
+                  var promiseArr=[];
                   vals.forEach(function(val, index) {
                       temp.time = moment(val.time).format("YYYY-MM-DD HH:mm:ss"), temp.orderId = val.orderId;
                       sql = "select bookOrder.bookOrderId,book.* from bookOrder join book where bookOrder.orderId = " + val.orderId +
                           " and bookOrder.bookId = book.bookId and book.userId = " + mysql.escape(userId) +
                           " and orderState = 3;";
-                      query(sql, function(err, vals2, fields) {
-                          if(err){
-                            return res.json({success:false});
-                          }else{
-                            temp.bookList = vals2;
-                            //若当前为空时
-                            if (vals2.length!=0) results.push(temp);
-                            if ((vals.length-1)==index)
-                              return res.json({
-                                  success:true,
-                                  orderList: results
-                              });
-                          }
-                      })
+                      promiseArr.push(new Promise(function(resolve,reject){
+                        query(sql, function(err, vals2, fields) {
+                            if(err){
+                              reject();
+                            }else{
+                              temp.bookList = vals2;
+                              //若当前为空时
+                              if (vals2.length>0) resolve(temp);
+                              else resolve();
+                            }
+                        })
+                      }))
                   })
+                  Promise.all(promiseArr).then(function(vals){
+                    return res.json({
+                        success:true,
+                        orderList: vals
+                    });
+                  }).catch(function(){
+                    return res.json({
+                        success:false
+                    });
+                  });
               }
             }
         })
@@ -517,6 +555,7 @@ app.get('/getOrderDetail', function(req, res) {
                   bookList: results
               });
           } else {
+              var promiseArr=[];
               datalist.forEach(function(val, index) {
                   var mailNumber = val.mailNumber,
                       bookOrderId = val.bookOrderId,
@@ -525,25 +564,32 @@ app.get('/getOrderDetail', function(req, res) {
                       userId = val.userId;
                   sql = "select bookOrder.bookOrderId,book.* from bookOrder,book where bookOrder.bookOrderId = " + mysql.escape(bookOrderId) +
                       " and bookOrder.bookId = book.bookId;";
-                  query(sql, function(err, vals, fields) {
-                      if(err){
-                        return res.json({success:false});
-                      }else{
-                        results.push({
-                            userId: userId,
-                            mailNumber: mailNumber,
-                            shipperCode: shipperCode,
-                            status: orderStateList[orderState],
-                            book: vals
-                        });
-                        if (index == (datalist.length-1))
-                          return res.json({
-                              success: true,
-                              bookList: results
+                  promiseArr.push(new Promise(function(resolve,reject){
+                    query(sql, function(err, vals, fields) {
+                        if(err){
+                          reject();
+                        }else{
+                          resolve({
+                              userId: userId,
+                              mailNumber: mailNumber,
+                              shipperCode: shipperCode,
+                              status: orderStateList[orderState],
+                              book: vals
                           });
-                      }
-                  })
+                        }
+                    })
+                  }))
               })
+              Promise.all(promiseArr).then(function(vals){
+                return res.json({
+                    success: true,
+                    bookList: vals
+                });
+              }).catch(function(){
+                return res.json({
+                    success: false
+                });
+              });
           }
         }
     })
@@ -650,24 +696,27 @@ app.get('/submitOrders', function(req, res) {
         sql = "";
     var factory = require('./server/uuid.js');
     var currentTime = moment().local().format("YYYY-MM-DD HH:mm:ss"),
-        count = 0;
+        count = 0,promiseArr=[];
     for (let i = 0; i < bookIdList.length; i++) {
         let uid = factory.uuid(9, 10);
         sql = "call submitOrder(" + mysql.escape(userId) + "," + mysql.escape(addressId) + "," + mysql.escape(currentTime) + "," + mysql.escape(bookIdList[i]) +
             "," + mysql.escape(uid) + ",@success);select @success;";
-        query(sql, function(err, vals, fields) {
-            if(err){
-              return res.json({success:false});
-            }else{
-              //无需理会究竟添加成功没，只需要都执行完毕即可。
-              count++;
-              if (count == bookIdList.length)
-                return res.json({
-                    success: true
-                });
-            }
-        });
+        promiseArr.push(new Promise(function(resolve,reject){
+          query(sql, function(err, vals, fields) {
+              if(err) reject();
+              else resolve();
+          });
+        }))
     }
+    Promise.all(promiseArr).then(function(){
+      return res.json({
+          success: true
+      });
+    }).catch(function(){
+      return res.json({
+          success: false
+      });
+    });
 })
 app.get('/deleteBooks', function(req, res) {
     var userId = req.query.userId,
