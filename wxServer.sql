@@ -500,6 +500,7 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `submitOrder`(
 )
 BEGIN
     DECLARE t_cartId INTEGER DEFAULT -1;
+    DECLARE t_orderId INTEGER DEFAULT -1;
     #定义发生异常时回滚
     DECLARE t_error INTEGER DEFAULT 0;
     DECLARE CONTINUE HANDLER FOR SQLEXCEPTION SET t_error=1;
@@ -511,7 +512,10 @@ BEGIN
 
     #SELECT t_userId, t_type;
 	if t_cartId!=-1 THEN
-      insert into orderTable(orderId,userId,time,addressId) values(r_orderId,r_userId,r_time,r_addressId);
+      select orderId into t_orderId from orderTable where orderId = r_orderId;
+      if t_orderId =-1 THEN
+          insert into orderTable(orderId,userId,time,addressId) values(r_orderId,r_userId,r_time,r_addressId);
+      end if;
       insert into bookOrder(bookId,orderId,orderState) values(r_bookId,r_orderId,0);
       update book set state = 0  where bookId = r_bookId;
 	    delete from bookCart where cartId = t_cartId;
