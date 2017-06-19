@@ -745,13 +745,16 @@ app.get('/submitOrders', function(req, res) {
     var currentTime = moment().local().format("YYYY-MM-DD HH:mm:ss"),
         count = 0,promiseArr=[];
     var uid = factory.uuid(9, 10);
-    for (let i = 0; i < bookIdList.length; i++) {
+    for (var i = 0; i < bookIdList.length; i++) {
         sql = "call submitOrder(" + mysql.escape(userId) + "," + mysql.escape(addressId) + "," + mysql.escape(currentTime) + "," + mysql.escape(bookIdList[i]) +
             "," + mysql.escape(uid) + ",@success);select @success;";
         promiseArr.push(new Promise(function(resolve,reject){
           query(sql, function(err, vals, fields) {
               if(err) reject();
-              else resolve();
+              else{
+                if(vals[1][0]["@success"]) resolve();
+                else reject();
+              }
           });
         }))
     }
