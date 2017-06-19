@@ -86,6 +86,7 @@ app.get('/bookSearch', function(req, res) {
         }
     })
 })
+
 app.get('/addCart', function(req, res) {
     var userId = req.query.userId,
         bookId = req.query.bookId,
@@ -101,6 +102,7 @@ app.get('/addCart', function(req, res) {
         }
     })
 })
+
 app.get('/borrowBooks', function(req, res) {
     var userId = req.query.userId,
         searchType = req.query.searchType,
@@ -133,15 +135,18 @@ app.get('/borrowBooks', function(req, res) {
                           }else{
                               temp.bookList = vals2;
                               if(vals2.length>0) resolve(temp);
-                              else resolve();
+                              else resolve('#');
                           }
                       })
                     }))
                 })
                 Promise.all(promiseArr).then(function(vals){
+                    vals.forEach(function(val){
+                      if(val!='#') results.push(val);
+                    })
                     return res.json({
                       success:true,
-                      orderList: vals
+                      orderList: results
                     });
                   }).catch(function(){
                     return res.json({
@@ -180,15 +185,18 @@ app.get('/borrowBooks', function(req, res) {
                           temp.bookList = vals2;
                           //若当前为空时
                           if (vals2.length>0) resolve(temp);
-                          else resolve(temp);
+                          else resolve('#');
                         }
                       })
                    }))
                 })
                 Promise.all(promiseArr).then(function(vals){
+                  vals.forEach(function(val){
+                    if(val!='#') results.push(val);
+                  })
                   return res.json({
                       success:true,
-                      orderList: vals
+                      orderList: results
                   });
                 }).catch(function(){
                   return res.json({
@@ -227,7 +235,7 @@ app.get('/returnBooks', function(req, res) {
                             if(err){
                               reject();
                             }else{
-                              var promiseArr2 =[];
+                              var promiseArr2 =[],tempResult=[];
                               vals1.forEach(function(val, idx) {
                                   var temp = {};
                                   temp.time = time;
@@ -242,13 +250,17 @@ app.get('/returnBooks', function(req, res) {
                                             temp.bookList = vals2;
                                             //若当前为空时
                                             if (vals2.length>0) resolve(temp);
-                                            else resolve();
+                                            else resolve('#');
                                          }
                                       })
                                   }))
                               })
                               Promise.all(promiseArr2).then(function(vals){
-                                resolve(vals);
+                                vals.forEach(function(val){
+                                  if(val!='#') tempResult.push(val);
+                                })
+                                if(tempResult.length>0) resolve(tempResult);
+                                else resolve('#');
                               }).catch(function(){
                                 reject();
                               });
@@ -257,9 +269,12 @@ app.get('/returnBooks', function(req, res) {
                       }))
                   })
                   Promise.all(promiseArr).then(function(vals){
+                    vals.forEach(function(val){
+                      if(val!='#') results.push(val);
+                    })
                     return res.json({
                         success:true,
-                        orderList: vals
+                        orderList: results
                     });
                   }).catch(function(){
                     return res.json({
@@ -292,7 +307,7 @@ app.get('/returnBooks', function(req, res) {
                             if(err){
                               reject();
                             }else{
-                              var promiseArr2=[];
+                              var promiseArr2=[],tempResult=[];
                               vals1.forEach(function(val, idx) {
                                   var temp = {};
                                   temp.time = time;
@@ -307,13 +322,17 @@ app.get('/returnBooks', function(req, res) {
                                           temp.bookList = vals2;
                                           //若当前为空时
                                           if (vals2.length>0) resolve(temp);
-                                          else resolve();
+                                          else resolve('#');
                                         }
                                     })
                                   }))
                               })
                               Promise.all(promiseArr2).then(function(vals){
-                                resolve(vals);
+                                vals.forEach(function(val){
+                                  if(val!='#') tempResult.push(val);
+                                })
+                                if(tempResult.length>0) resolve(tempResult);
+                                else resolve('#');
                               }).catch(function(){
                                 reject();
                               });
@@ -322,9 +341,12 @@ app.get('/returnBooks', function(req, res) {
                       }))
                   })
                   Promise.all(promiseArr).then(function(vals){
+                    vals.forEach(function(val){
+                      if(val!='#') results.push(val);
+                    })
                     return res.json({
                         success:true,
-                        orderList: vals
+                        orderList: results
                     });
                   }).catch(function(){
                     return res.json({
@@ -382,15 +404,18 @@ app.get('/historyBooks', function(req, res) {
                               temp.bookList = vals;
                               //若当前为空时
                               if (vals2.length>0) resolve(temp);
-                              else resolve();
+                              else resolve('#');
                             }
                         })
                       }))
                   })
                   Promise.all(promiseArr).then(function(vals){
+                    vals.forEach(function(val){
+                      if(val!='#') results.push(val);
+                    })
                     return res.json({
                         success:true,
-                        orderList: vals
+                        orderList: results
                     });
                   }).catch(function(){
                     return res.json({
@@ -429,15 +454,18 @@ app.get('/historyBooks', function(req, res) {
                               temp.bookList = vals2;
                               //若当前为空时
                               if (vals2.length>0) resolve(temp);
-                              else resolve();
+                              else resolve('#');
                             }
                         })
                       }))
                   })
                   Promise.all(promiseArr).then(function(vals){
+                    vals.forEach(function(val){
+                      if(val!='#') results.push(val);
+                    })
                     return res.json({
                         success:true,
-                        orderList: vals
+                        orderList: results
                     });
                   }).catch(function(){
                     return res.json({
@@ -569,21 +597,28 @@ app.get('/getOrderDetail', function(req, res) {
                         if(err){
                           reject();
                         }else{
-                          resolve({
-                              userId: userId,
-                              mailNumber: mailNumber,
-                              shipperCode: shipperCode,
-                              status: orderStateList[orderState],
-                              book: vals
-                          });
+                          if(vals.length>0){
+                            resolve({
+                                userId: userId,
+                                mailNumber: mailNumber,
+                                shipperCode: shipperCode,
+                                status: orderStateList[orderState],
+                                book: vals
+                            });
+                          }else {
+                            resolve("#");
+                          }
                         }
                     })
                   }))
               })
               Promise.all(promiseArr).then(function(vals){
+                vals.forEach(function(val){
+                  if(val!='#') results.push(val);
+                })
                 return res.json({
                     success: true,
-                    bookList: vals
+                    bookList: results
                 });
               }).catch(function(){
                 return res.json({
