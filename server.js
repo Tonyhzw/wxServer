@@ -146,7 +146,6 @@ app.get('/borrowBooks', function(req, res) {
                     return res.json({
                       success:false
                     });
-                  });
                 })
               }
             }
