@@ -120,58 +120,70 @@ app.get('/returnBooks',function(req,res){
     sql = "select * from orderTable where userId = "+mysql.escape(userId)+" order by time desc;";
     var results=[];
     query(sql,function(err,vals,fields){
-      vals.forEach(function(val,index){
-        var time = moment(val.time).format("YYYY-MM-DD HH:mm:ss");
-        sql = "select mailNumberReturn from bookOrder where orderId = "+mysql.escape(val.orderId)+" and orderState = 2;";
-        query(sql,function(err,vals1,fields){
-          vals1.forEach(function(val,idx){
-            var temp = {};
-            temp.time = time;
-            temp.orderId = val.mailNumberReturn;
-            sql = "select bookOrder.bookOrderId,book.* from bookOrder join book where bookOrder.mailNumberReturn="+val.mailNumberReturn+
-            " and bookOrder.bookId = book.bookId;";
-            query(sql,function(err,vals2,fields){
-              temp.bookList = vals2;
-              //若当前为空时
-              if(vals2.length!=0){
-                results.push(temp);
-              }
-              if(((vals.length-1)==index)&&((vals1.length-1)==idx)) res.json({orderList:results});
-            })
-          });
-          if(vals1.length == 0) res.json({orderList:results});
+      if(vals.length==0){
+        res.json({orderList:results});
+      }else{
+        vals.forEach(function(val,index){
+          var time = moment(val.time).format("YYYY-MM-DD HH:mm:ss");
+          sql = "select mailNumberReturn from bookOrder where orderId = "+mysql.escape(val.orderId)+" and orderState = 2;";
+          query(sql,function(err,vals1,fields){
+            if(vals1.length==0){
+              res.json({orderList:results});
+            }else{
+              vals1.forEach(function(val,idx){
+                var temp = {};
+                temp.time = time;
+                temp.orderId = val.mailNumberReturn;
+                sql = "select bookOrder.bookOrderId,book.* from bookOrder join book where bookOrder.mailNumberReturn="+val.mailNumberReturn+
+                " and bookOrder.bookId = book.bookId;";
+                query(sql,function(err,vals2,fields){
+                  temp.bookList = vals2;
+                  //若当前为空时
+                  if(vals2.length!=0){
+                    results.push(temp);
+                  }
+                  if(((vals.length-1)==index)&&((vals1.length-1)==idx)) res.json({orderList:results});
+                })
+              })
+            }
+          })
         })
-      })
-      if(vals.length == 0) res.json({orderList:results});
+      }
     })
   }else{
     //归还借出
     sql = "select * from orderTable order by time desc;";
     var results=[];
     query(sql,function(err,vals,fields){
-      vals.forEach(function(val,index){
-        var time = moment(val.time).format("YYYY-MM-DD HH:mm:ss");
-        sql = "select mailNumberReturn from bookOrder where orderId = "+mysql.escape(val.orderId)+" and orderState = 2;";
-        query(sql,function(err,vals1,fields){
-          vals1.forEach(function(val,idx){
-            var temp = {};
-            temp.time = time;
-            temp.orderId = val.mailNumberReturn;
-            sql = "select bookOrder.bookOrderId,book.* from bookOrder join book where bookOrder.mailNumberReturn="+val.mailNumberReturn+
-            " and book.userId = "+mysql.escape(userId)+" and bookOrder.bookId = book.bookId;";
-            query(sql,function(err,vals2,fields){
-              temp.bookList = vals2;
-              //若当前为空时
-              if(vals2.length!=0){
-                results.push(temp);
-              }
-              if(((vals.length-1)==index)&&(idx==(vals1.length-1))) res.json({orderList:results});
-            })
+      if(vals.length==0){
+        res.json({orderList:results});
+      }else{
+        vals.forEach(function(val,index){
+          var time = moment(val.time).format("YYYY-MM-DD HH:mm:ss");
+          sql = "select mailNumberReturn from bookOrder where orderId = "+mysql.escape(val.orderId)+" and orderState = 2;";
+          query(sql,function(err,vals1,fields){
+            if(vals1.length==0){
+              res.json({orderList:results});
+            }else{
+              vals1.forEach(function(val,idx){
+                var temp = {};
+                temp.time = time;
+                temp.orderId = val.mailNumberReturn;
+                sql = "select bookOrder.bookOrderId,book.* from bookOrder join book where bookOrder.mailNumberReturn="+val.mailNumberReturn+
+                " and book.userId = "+mysql.escape(userId)+" and bookOrder.bookId = book.bookId;";
+                query(sql,function(err,vals2,fields){
+                  temp.bookList = vals2;
+                  //若当前为空时
+                  if(vals2.length!=0){
+                    results.push(temp);
+                  }
+                  if(((vals.length-1)==index)&&(idx==(vals1.length-1))) res.json({orderList:results});
+                })
+              })
+            }
           })
-          if(vals1.length == 0) res.json({orderList:results});
         })
-      })
-      if(vals.length==0) res.json({orderList:results});
+      }
     })
   }
 })
