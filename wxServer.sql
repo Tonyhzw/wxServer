@@ -221,8 +221,8 @@ UNLOCK TABLES;
 /*!50003 SET sql_mode              = 'ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION' */ ;
 DELIMITER ;;
 CREATE DEFINER=`root`@`localhost` PROCEDURE `addCart`(
-	IN userId INTEGER,
-    IN bookId INTEGER,
+	  IN r_userId INTEGER,
+    IN r_bookId INTEGER,
     OUT success BOOLEAN
 )
 BEGIN
@@ -236,12 +236,12 @@ BEGIN
     #开启事务
     START TRANSACTION;
 
-    select userId into t_userId from user where userId = userId LIMIT 1;
-    select bookId into t_bookId from book where bookId = bookId  LIMIT 1;
-    select cartId into t_cartId from bookCart where userId = userId and bookId = bookId LIMIT 1 FOR UPDATE;
+    select userId into t_userId from user where userId = r_userId LIMIT 1;
+    select bookId into t_bookId from book where bookId = r_bookId  LIMIT 1;
+    select cartId into t_cartId from bookCart where userId = r_userId and bookId = r_bookId LIMIT 1 FOR UPDATE;
     #确保每次提交的只有一份数据
 	if (t_userId!=-1&&t_bookId!=-1)&&t_cartId=-1 THEN
-		insert into bookCart(userId,bookId) values(userId,bookId);
+		insert into bookCart(userId,bookId) values(r_userId,r_bookId);
       #提交事务或者回滚
 	if t_error = 1 then
 		ROLLBACK;
@@ -274,9 +274,9 @@ DELIMITER ;
 /*!50003 SET sql_mode              = 'ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION' */ ;
 DELIMITER ;;
 CREATE DEFINER=`root`@`localhost` PROCEDURE `changeDefaultAddress`(
-    IN userId INTEGER,
-	IN prevAddressId INTEGER,
-    IN curAddressId INTEGER,
+    IN r_userId INTEGER,
+	  IN r_prevAddressId INTEGER,
+    IN r_curAddressId INTEGER,
     OUT success BOOLEAN
 )
 BEGIN
@@ -289,13 +289,13 @@ BEGIN
     #开启事务
     START TRANSACTION;
 
-    select addressId into t_prevId from address where addressId = prevAddressId and userId = userId LIMIT 1 FOR UPDATE;
-    select addressId into t_curId from address where addressId = curAddressId and userId = userId LIMIT 1;
+    select addressId into t_prevId from address where addressId = r_prevAddressId and userId = r_userId LIMIT 1 FOR UPDATE;
+    select addressId into t_curId from address where addressId = r_curAddressId and userId = r_userId LIMIT 1;
 
     #SELECT t_userId, t_type;
 	if t_prevId!=-1&&t_curId!=-1 THEN
-     update address set isDefault = 0  where addressId = prevAddressId;
-	 update address set isDefault = 1 where addressId = curAddressId;
+     update address set isDefault = 0  where addressId = r_prevAddressId;
+	   update address set isDefault = 1 where addressId = r_curAddressId;
       #提交事务或者回滚
 	if t_error = 1 then
 		ROLLBACK;
@@ -328,9 +328,9 @@ DELIMITER ;
 /*!50003 SET sql_mode              = 'ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION' */ ;
 DELIMITER ;;
 CREATE DEFINER=`root`@`localhost` PROCEDURE `deleteOwnAddress`(
-  IN userId INTEGER,
-  IN newDefaultId INTEGER,
-  IN addressId INTEGER,
+  IN r_userId INTEGER,
+  IN r_newDefaultId INTEGER,
+  IN r_addressId INTEGER,
   OUT success BOOLEAN
 )
 BEGIN
@@ -343,8 +343,8 @@ DECLARE t_prevId INTEGER DEFAULT -1;
     #开启事务
     START TRANSACTION;
 
-    select addressId into t_prevId from address where addressId = addressId and userId = userId LIMIT 1 FOR UPDATE;
-    select addressId into t_curId from address where addressId = newDefaultId and userId = userId LIMIT 1;
+    select addressId into t_prevId from address where addressId = r_addressId and userId = r_userId LIMIT 1 FOR UPDATE;
+    select addressId into t_curId from address where addressId = r_newDefaultId and userId = r_userId LIMIT 1;
 
     #SELECT t_userId, t_type;
 	if t_prevId!=-1&&t_curId!=-1 THEN
@@ -491,11 +491,11 @@ DELIMITER ;
 /*!50003 SET sql_mode              = 'ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION' */ ;
 DELIMITER ;;
 CREATE DEFINER=`root`@`localhost` PROCEDURE `submitOrder`(
-	  IN t_userId INTEGER,
-    IN t_addressId INTEGER,
-    IN t_time  DATETIME,
-    IN t_bookId INTEGER,
-    IN t_orderId INTEGER,
+	  IN r_userId INTEGER,
+    IN r_addressId INTEGER,
+    IN r_time  DATETIME,
+    IN r_bookId INTEGER,
+    IN r_orderId INTEGER,
     OUT success BOOLEAN
 )
 BEGIN
@@ -507,13 +507,13 @@ BEGIN
     #开启事务
     START TRANSACTION;
 
-    select cartId into t_cartId from bookCart where userId = t_userId and bookId = t_bookId LIMIT 1 FOR UPDATE;
+    select cartId into t_cartId from bookCart where userId = r_userId and bookId = r_bookId LIMIT 1 FOR UPDATE;
 
     #SELECT t_userId, t_type;
 	if t_cartId!=-1 THEN
-      insert into orderTable(orderId,userId,time,addressId) values(t_orderId,t_userId,t_time,t_addressId);
-      insert into bookOrder(bookId,orderId,orderState) values(t_bookId,t_orderId,0);
-      update book set book.state = 0  where book.bookId = t_bookId;
+      insert into orderTable(orderId,userId,time,addressId) values(r_orderId,r_userId,r_time,r_addressId);
+      insert into bookOrder(bookId,orderId,orderState) values(r_bookId,r_orderId,0);
+      update book set book.state = 0  where book.bookId = r_bookId;
 	    delete from bookCart where cartId = t_cartId;
 
       #提交事务或者回滚
@@ -549,7 +549,7 @@ DELIMITER ;
 /*!50003 SET sql_mode              = 'ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION' */ ;
 DELIMITER ;;
 CREATE DEFINER=`root`@`localhost` PROCEDURE `successReturn`(
-	IN bookOrderId INTEGER,
+	IN r_bookOrderId INTEGER,
   OUT success BOOLEAN
 )
 BEGIN
@@ -560,8 +560,8 @@ BEGIN
     #开启事务
     START TRANSACTION;
     #解决并发数据不一致，可以使用写独占锁或者CAS机制,这里使用写独占锁
-    update bookOrder set orderState = 3 where bookOrderId = bookOrderId;
-    update book,bookOrder set book.state = 2 where book.bookId = bookOrder.bookId and bookOrder.bookOrderId = bookOrderId;
+    update bookOrder set orderState = 3 where bookOrderId = r_bookOrderId;
+    update book,bookOrder set book.state = 2 where book.bookId = bookOrder.bookId and bookOrder.bookOrderId = r_bookOrderId;
 
     #提交事务或者回滚
 	if t_error = 1 then
@@ -589,10 +589,10 @@ DELIMITER ;
 /*!50003 SET sql_mode              = 'ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION' */ ;
 DELIMITER ;;
 CREATE DEFINER=`root`@`localhost` PROCEDURE `writeMailNumber`(
-	IN direction INTEGER,
-    IN mailNumber TINYTEXT,
-    IN bookOrderId INTEGER,
-    IN shipperCode VARCHAR(45),
+	  IN r_direction INTEGER,
+    IN r_mailNumber TINYTEXT,
+    IN r_bookOrderId INTEGER,
+    IN r_shipperCode VARCHAR(45),
     OUT success BOOLEAN
 )
 BEGIN
@@ -605,11 +605,11 @@ BEGIN
     # direction 1 => 寄回 ; direction 0=> 借出
     # orderState 0:待借出 1：借出 2：寄回 3：交易完成
     # state : 0 ：借出 1：寄回 2：可借阅
-    if direction =1 then
-		update bookOrder set mailNumberReturn = mailNumber,shipperCodeReturn = shipperCode, orderState = 2 where bookOrderId = bookOrderId;
-        update book,bookOrder set book.state = 1 where book.bookId = bookOrder.bookId and bookOrder.bookOrderId = bookOrderId;
+    if direction = 1 then
+		    update bookOrder set mailNumberReturn = r_mailNumber,shipperCodeReturn = r_shipperCode, orderState = 2 where bookOrderId = r_bookOrderId;
+        update book,bookOrder set book.state = 1 where book.bookId = bookOrder.bookId and bookOrder.bookOrderId = r_bookOrderId;
     else
-        update bookOrder set mailNumber = mailNumber,shipperCode = shipperCode, orderState = 1 where bookOrderId = bookOrderId;
+        update bookOrder set mailNumber = r_mailNumber,shipperCode = r_shipperCode, orderState = 1 where bookOrderId = r_bookOrderId;
     end if;
 
     #提交事务或者回滚

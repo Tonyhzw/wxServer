@@ -208,6 +208,7 @@ app.get('/borrowBooks', function(req, res) {
         })
     }
 })
+
 app.get('/returnBooks', function(req, res) {
     var userId = req.query.userId,
         searchType = req.query.searchType,
@@ -358,6 +359,7 @@ app.get('/returnBooks', function(req, res) {
         })
     }
 })
+
 app.get('/successReturn', function(req, res) {
     var bookOrderId = req.query.bookOrderId,
         sql = "";
@@ -372,6 +374,7 @@ app.get('/successReturn', function(req, res) {
         }
     })
 })
+
 app.get('/historyBooks', function(req, res) {
     var userId = req.query.userId,
         searchType = req.query.searchType,
@@ -477,6 +480,7 @@ app.get('/historyBooks', function(req, res) {
         })
     }
 })
+
 app.get('/getOrderAddress', function(req, res) {
     var bookOrderId = req.query.bookOrderId,
         type = req.query.insertType,
@@ -511,6 +515,7 @@ app.get('/getOrderAddress', function(req, res) {
         })
     }
 })
+
 app.get('/isExist', function(req, res) {
     var mailNumber = req.query.mailNumber,
         bookOrderId = req.query.bookOrderId,
@@ -549,6 +554,7 @@ app.get('/isExist', function(req, res) {
         });
     });
 })
+
 app.get('/getExpress', function(req, res) {
     var mailNumber = req.query.mailNumber,
         shipperCode = req.query.shipperCode;
@@ -565,6 +571,7 @@ app.get('/getExpress', function(req, res) {
         return res.json(data);
     });
 })
+
 app.get('/getOrderDetail', function(req, res) {
     //先按orderId查到所有关联的书籍，然后将书籍按照运单号分类
     var orderId = req.query.orderId,
@@ -629,6 +636,7 @@ app.get('/getOrderDetail', function(req, res) {
         }
     })
 })
+
 app.get('/getMailDetail', function(req, res) {
     //直接按照运单号查询，返回对应信息
     var mailNumber = req.query.mailNumber,
@@ -663,6 +671,7 @@ app.get('/getMailDetail', function(req, res) {
         }
     })
 })
+
 app.get('/getHistoryDetail', function(req, res) {
     var bookOrderId = req.query.bookOrderId;
     sql = "select book.*,bookOrder.mailNumber,bookOrder.shipperCode,bookOrder.mailNumberReturn,bookOrder.shipperCodeReturn from bookOrder,book where bookOrder.bookOrderId = " +
@@ -695,6 +704,7 @@ app.get('/getHistoryDetail', function(req, res) {
         }
     })
 })
+
 app.get('/getCart', function(req, res) {
     var userId = req.query.userId,
         sql = "";
@@ -710,6 +720,7 @@ app.get('/getCart', function(req, res) {
         }
     })
 })
+
 app.get('/getDefaultAddress', function(req, res) {
     var userId = req.query.userId;
     sql = "select * from address where userId = " + mysql.escape(userId) + " and isDefault = 1;";
@@ -724,6 +735,7 @@ app.get('/getDefaultAddress', function(req, res) {
         }
     })
 })
+
 app.get('/submitOrders', function(req, res) {
     var userId = req.query.userId,
         bookIdList = JSON.parse(req.query.bookIdList),
@@ -753,6 +765,7 @@ app.get('/submitOrders', function(req, res) {
       });
     });
 })
+
 app.get('/deleteBooks', function(req, res) {
     var userId = req.query.userId,
         bookId = req.query.bookId,
@@ -768,6 +781,7 @@ app.get('/deleteBooks', function(req, res) {
         }
     })
 })
+
 app.get('/getOwnBooks', function(req, res) {
     var userId = req.query.userId,
         sql = "";
@@ -783,6 +797,7 @@ app.get('/getOwnBooks', function(req, res) {
         }
     })
 })
+
 app.get('/getOwnAddress', function(req, res) {
     var userId = req.query.userId,
         sql = "";
@@ -800,6 +815,7 @@ app.get('/getOwnAddress', function(req, res) {
         }
     })
 })
+
 app.get('/changeDefaultAddress', function(req, res) {
     var userId = req.query.userId,
         prevId = req.query.prevIndex,
@@ -816,6 +832,7 @@ app.get('/changeDefaultAddress', function(req, res) {
         }
     })
 })
+
 app.get('/deleteOwnAddress', function(req, res) {
     var userId = req.query.userId,
         newDefaultId = req.query.newDefaultId,
@@ -832,6 +849,7 @@ app.get('/deleteOwnAddress', function(req, res) {
         }
     })
 })
+
 app.get('/addAddress', function(req, res) {
     var userId = req.query.userId,
         newAddress = JSON.parse(req.query.newAddress),
@@ -901,6 +919,7 @@ app.post('/addBooks', upload.single('file'), function(req, res) {
         }
     })
 })
+
 app.get('/getCode', function(req, res) {
     var userId = req.query.userId,
         type = req.query.type,
