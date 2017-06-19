@@ -456,7 +456,7 @@ BEGIN
       insert into user(nickname,type,inviteUserId)  values(r_username,t_type,t_userId);
       select userId,type into t_userId,t_type from user where nickname = r_username;
       #最后删除，防止由于锁造成的失败
-	  delete from invite where invite.inviteId = t_inviteId;
+	  delete from invite where inviteId = t_inviteId;
       #提交事务或者回滚
 	if t_error = 1 then
 		ROLLBACK;
@@ -513,16 +513,16 @@ BEGIN
 	if t_cartId!=-1 THEN
       insert into orderTable(orderId,userId,time,addressId) values(r_orderId,r_userId,r_time,r_addressId);
       insert into bookOrder(bookId,orderId,orderState) values(r_bookId,r_orderId,0);
-      update book set book.state = 0  where book.bookId = r_bookId;
+      update book set state = 0  where bookId = r_bookId;
 	    delete from bookCart where cartId = t_cartId;
 
       #提交事务或者回滚
 	if t_error = 1 then
 		ROLLBACK;
-        SET success = false;
+    SET success = false;
 	else
-         COMMIT;
-		 SET success = true;
+    COMMIT;
+		SET success = true;
 	end if;
 
   else
