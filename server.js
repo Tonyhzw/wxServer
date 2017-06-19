@@ -582,10 +582,17 @@ app.get('/getExpress', function(req, res) {
 
 app.get('/getOrderDetail', function(req, res) {
     //先按orderId查到所有关联的书籍，然后将书籍按照运单号分类
-    var orderId = req.query.orderId,
-        sql = "",
-        orderStateList = ['待借出', '借出', '寄回', '已完成'];
-    sql = "select bookOrder.bookOrderId,bookOrder.orderState,bookOrder.mailNumber,bookOrder.shipperCode,orderTable.userId from bookOrder,orderTable where bookOrder.orderId = " + mysql.escape(orderId) + " and orderTable.orderId = " + mysql.escape(orderId) + ";";
+    var orderId = req.query.orderId, currentIndex=req.query.currentIndex,
+    sql = "",
+    orderStateList = ['待借出', '借出', '寄回', '已完成'];
+    sql = "select bookOrder.bookOrderId,bookOrder.orderState,bookOrder.mailNumber,bookOrder.shipperCode,orderTable.userId from bookOrder,orderTable where bookOrder.orderId = " + mysql.escape(orderId) + " and orderTable.orderId = " + mysql.escape(orderId);
+    if(currentIndex==0){
+      sql +=" and (bookOrder.orderState = 0 or bookOrder.orderState = 1);";
+    }else if(currentIndex==1){
+      sql +=" and bookOrder.orderState = 2;";
+    }else{
+      sql +=" and bookOrder.orderState = 3;";
+    }
     query(sql, function(err, vals, fields) {
         if(err){
           return res.json({success:false});
