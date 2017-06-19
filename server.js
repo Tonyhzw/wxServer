@@ -111,15 +111,13 @@ app.get('/borrowBooks', function(req, res) {
         var results = [];
         query(sql, function(err, vals, fields) {
             if(err){
-              res.json({success:false});
-              return;
+              return res.json({success:false});
             }else{
               if(vals.length==0){
-                res.json({
+                return res.json({
                     success:true,
                     orderList: results
                 })
-                return;
               }else{
                 vals.forEach(function(val, index) {
                     var temp = {};
@@ -128,19 +126,17 @@ app.get('/borrowBooks', function(req, res) {
                     sql = "select bookOrder.bookOrderId,book.* from bookOrder, book where orderId = " + mysql.escape(val.orderId) + " and bookOrder.bookId = book.bookId and (orderState = 0 or orderState = 1);";
                     query(sql, function(err, vals2, fields) {
                         if(err){
-                            res.json({success:false});
-                            return ;
+                            return res.json({success:false});
                         }else{
                             temp.bookList = vals2;
                             //若当前为空时
                             if (vals2.length != 0) results.push(temp);
                             //若都执行完毕时
                             if (index == (vals.length-1)) {
-                                res.json({
+                                return res.json({
                                     success:true,
                                     orderList: results
                                 });
-                                return;
                             }
                         }
                     })
@@ -154,15 +150,13 @@ app.get('/borrowBooks', function(req, res) {
         var results = [];
         query(sql, function(err, vals, fields) {
             if(err){
-              res.json({success:false});
-              return;
+              return res.json({success:false})
             }else{
               if(vals.length==0){
-                res.json({
+                return res.json({
                     success:true,
                     orderList: results
                 });
-                return;
               }else{
                 vals.forEach(function(val, index) {
                     var temp = {};
@@ -170,8 +164,7 @@ app.get('/borrowBooks', function(req, res) {
                     sql = "select bookOrder.bookOrderId,book.* from bookOrder, book where bookOrder.orderId = " + mysql.escape(val.orderId) + " and bookOrder.bookId = book.bookId and book.userId = " + mysql.escape(userId) + " and (orderState = 0 or orderState = 1);";
                     query(sql, function(err, vals2, fields) {
                         if(err){
-                          res.json({success:false});
-                          return;
+                          return res.json({success:false});
                         }else{
                           temp.bookList = vals2;
                           //若当前为空时
@@ -179,11 +172,10 @@ app.get('/borrowBooks', function(req, res) {
                               results.push(temp);
                           }
                           if ((vals.length-1) == index) {
-                              res.json({
+                              return res.json({
                                   success:true,
                                   orderList: results
                               });
-                              return;
                           }
                         }
                     })
@@ -220,17 +212,11 @@ app.get('/returnBooks', function(req, res) {
                               success:false
                             })
                           }else{
-                            if (vals1.length == 0) {
-                                return res.json({
-                                    success:true,
-                                    orderList: results
-                                });
-                            } else {
-                                vals1.forEach(function(val, idx) {
+                            vals1.forEach(function(val, idx) {
                                     var temp = {};
                                     temp.time = time;
                                     temp.orderId = val.mailNumberReturn;
-                                    sql = "select bookOrder.bookOrderId,book.* from bookOrder join book where bookOrder.mailNumberReturn=" + val.mailNumberReturn +
+                                    sql = "select bookOrder.bookOrderId,book.* from bookOrder join book where bookOrder.mailNumberReturn=" + mysql.escape(val.mailNumberReturn) +
                                         " and bookOrder.bookId = book.bookId;";
                                     query(sql, function(err, vals2, fields) {
                                         if(err){
@@ -241,7 +227,7 @@ app.get('/returnBooks', function(req, res) {
                                           if (vals2.length != 0) {
                                               results.push(temp);
                                           }
-                                          if (((vals.length - 1) == index) && ((vals1.length - 1) == idx))
+                                          if (((vals.length-1) == index) && ((vals1.length-1) == idx))
                                             return res.json({
                                                 success:true,
                                                 orderList: results
@@ -249,7 +235,12 @@ app.get('/returnBooks', function(req, res) {
                                        }
                                     })
                                 })
-                            }
+                            //若最后一个为null时，则无法进去正常的res.json，此时由外部给出
+                            if(index==(vals.length-1))
+                              return res.json({
+                                success:true,
+                                orderList: results
+                              });
                           }
                       })
                   })
@@ -277,17 +268,11 @@ app.get('/returnBooks', function(req, res) {
                           if(err){
                             return res.json({success:false});
                           }else{
-                            if (vals1.length == 0) {
-                                return res.json({
-                                    success:true,
-                                    orderList: results
-                                });
-                            } else {
-                                vals1.forEach(function(val, idx) {
+                            vals1.forEach(function(val, idx) {
                                     var temp = {};
                                     temp.time = time;
                                     temp.orderId = val.mailNumberReturn;
-                                    sql = "select bookOrder.bookOrderId,book.* from bookOrder join book where bookOrder.mailNumberReturn=" + val.mailNumberReturn +
+                                    sql = "select bookOrder.bookOrderId,book.* from bookOrder join book where bookOrder.mailNumberReturn=" + mysql.escape(val.mailNumberReturn) +
                                         " and book.userId = " + mysql.escape(userId) + " and bookOrder.bookId = book.bookId;";
                                     query(sql, function(err, vals2, fields) {
                                         if(err){
@@ -306,6 +291,12 @@ app.get('/returnBooks', function(req, res) {
                                         }
                                     })
                                 })
+                            //最后一个为null时返回
+                            if ((vals.length-1) == index) {
+                                return res.json({
+                                    success:true,
+                                    orderList: results
+                                });
                             }
                           }
                       })
@@ -339,16 +330,14 @@ app.get('/historyBooks', function(req, res) {
         var results = [];
         query(sql, function(err, vals, fields) {
             if(err){
-              res.json({success:false});
-              return;
+              return res.json({success:false});
             }else{
               var temp = {};
               if (vals.length == 0) {
-                  res.json({
+                  return res.json({
                       success:true,
                       orderList: results
                   });
-                  return;
               } else {
                   vals.forEach(function(val, index) {
                       temp.orderId = val.orderId;
@@ -356,18 +345,16 @@ app.get('/historyBooks', function(req, res) {
                       sql = "select bookOrder.bookOrderId,book.* from bookOrder join book where orderId = " + val.orderId + " and bookOrder.bookId = book.bookId and orderState = 3;";
                       query(sql, function(err, vals2, fields) {
                           if(err){
-                            res.json({success:false});
-                            return;
+                            return res.json({success:false});
                           }else{
                             temp.bookList = vals;
                             //若当前为空时
                             if (vals2.length != 0) results.push(temp);
-                            if (index == (vals.length - 1))
-                              res.json({
+                            if (index == (vals.length-1))
+                              return res.json({
                                   success:true,
                                   orderList: results
                               });
-                              return;
                           }
                       })
                   })
@@ -380,16 +367,14 @@ app.get('/historyBooks', function(req, res) {
         var results = [];
         query(sql, function(err, vals, fields) {
             if(err){
-              res.json({success:false});
-              return;
+              return res.json({success:false});
             }else{
               var temp = {};
               if (vals.length == 0) {
-                  res.json({
+                  return res.json({
                       success:true,
                       orderList: results
                   });
-                  return;
               } else {
                   vals.forEach(function(val, index) {
                       temp.time = moment(val.time).format("YYYY-MM-DD HH:mm:ss"), temp.orderId = val.orderId;
@@ -398,18 +383,16 @@ app.get('/historyBooks', function(req, res) {
                           " and orderState = 3;";
                       query(sql, function(err, vals2, fields) {
                           if(err){
-                            res.json({success:false});
-                            return;
+                            return res.json({success:false});
                           }else{
                             temp.bookList = vals2;
                             //若当前为空时
                             if (vals2.length!=0) results.push(temp);
                             if ((vals.length-1)==index)
-                              res.json({
+                              return res.json({
                                   success:true,
                                   orderList: results
                               });
-                              return;
                           }
                       })
                   })
