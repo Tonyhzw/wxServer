@@ -523,16 +523,19 @@ BEGIN
       #提交事务或者回滚
 	if t_error = 1 then
 		ROLLBACK;
-    SET success = false;
+    	#select 0;
+	SET success = 0;
 	else
     COMMIT;
-		SET success = true;
+	#select 1;
+        SET success = 1;
 	end if;
 
   else
       #释放独占锁
       COMMIT;
-      SET success = false;
+      #select -1;
+      SET success = -1;
 
   end if;
 

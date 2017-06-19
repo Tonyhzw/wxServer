@@ -752,7 +752,8 @@ app.get('/submitOrders', function(req, res) {
           query(sql, function(err, vals, fields) {
               if(err) reject();
               else{
-                if(vals[1][0]["@success"]) resolve();
+                console.log(vals[1][0]["@success"]);
+		if(vals[1][0]["@success"]) resolve();
                 else reject();
               }
           });
