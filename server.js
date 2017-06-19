@@ -123,16 +123,16 @@ app.get('/borrowBooks', function(req, res) {
                     var temp = {};
                     temp.orderId = val.orderId;
                     temp.time = moment(val.time).format("YYYY-MM-DD HH:mm:ss");
-                    sql = "select bookOrder.bookOrderId,book.* from bookOrder, book where orderId = " + mysql.escape(val.orderId) + " and bookOrder.bookId = book.bookId and (orderState = 0 or orderState = 1);";
+                    sql = "select bookOrder.bookOrderId,book.* from bookOrder, book where bookOrder.orderId = "+
+                    mysql.escape(val.orderId) + " and bookOrder.bookId = book.bookId and (bookOrder.orderState = 0 or bookOrder.orderState = 1);";
                     query(sql, function(err, vals2, fields) {
                         if(err){
                             return res.json({success:false});
                         }else{
                             temp.bookList = vals2;
-                            //若当前为空时
-                            if (vals2.length != 0) results.push(temp);
+                            if (vals2.length!=0) results.push(temp);
                             //若都执行完毕时
-                            if (index == (vals.length-1)) {
+                            if (index==(vals.length-1)) {
                                 return res.json({
                                     success:true,
                                     orderList: results
@@ -161,14 +161,16 @@ app.get('/borrowBooks', function(req, res) {
                 vals.forEach(function(val, index) {
                     var temp = {};
                     temp.time = moment(val.time).format("YYYY-MM-DD HH:mm:ss"), temp.orderId = val.orderId;
-                    sql = "select bookOrder.bookOrderId,book.* from bookOrder, book where bookOrder.orderId = " + mysql.escape(val.orderId) + " and bookOrder.bookId = book.bookId and book.userId = " + mysql.escape(userId) + " and (orderState = 0 or orderState = 1);";
+                    sql = "select bookOrder.bookOrderId,book.* from bookOrder, book where bookOrder.orderId = "+
+                    mysql.escape(val.orderId) + " and bookOrder.bookId = book.bookId and book.userId = " + mysql.escape(userId)+
+                    " and (bookOrder.orderState = 0 or bookOrder.orderState = 1);";
                     query(sql, function(err, vals2, fields) {
                         if(err){
                           return res.json({success:false});
                         }else{
                           temp.bookList = vals2;
                           //若当前为空时
-                          if (vals2.length != 0) {
+                          if (vals2.length!=0) {
                               results.push(temp);
                           }
                           if ((vals.length-1) == index) {
