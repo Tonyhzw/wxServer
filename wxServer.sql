@@ -605,7 +605,7 @@ BEGIN
     # direction 1 => 寄回 ; direction 0=> 借出
     # orderState 0:待借出 1：借出 2：寄回 3：交易完成
     # state : 0 ：借出 1：寄回 2：可借阅
-    if direction = 1 then
+    if r_direction = 1 then
 		    update bookOrder set mailNumberReturn = r_mailNumber,shipperCodeReturn = r_shipperCode, orderState = 2 where bookOrderId = r_bookOrderId;
         update book,bookOrder set book.state = 1 where book.bookId = bookOrder.bookId and bookOrder.bookOrderId = r_bookOrderId;
     else
@@ -615,9 +615,9 @@ BEGIN
     #提交事务或者回滚
 	if t_error = 1 then
 		ROLLBACK;
-        SET success = false;
+    SET success = false;
 	else
-         COMMIT;
+     COMMIT;
 		 SET success = true;
    end if;
 
