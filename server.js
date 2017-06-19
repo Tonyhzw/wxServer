@@ -131,8 +131,10 @@ app.get('/borrowBooks', function(req, res) {
                         }else{
                             temp.bookList = vals2;
                             if (vals2.length!=0) results.push(temp);
+                            console.dir("index "+index,results);
                             //若都执行完毕时
                             if (index==(vals.length-1)) {
+                                console.dir("finally:",results);
                                 return res.json({
                                     success:true,
                                     orderList: results
@@ -173,7 +175,9 @@ app.get('/borrowBooks', function(req, res) {
                           if (vals2.length!=0) {
                               results.push(temp);
                           }
+                          console.dir("index "+index,results);
                           if ((vals.length-1) == index) {
+                              console.dir("finally ",results);
                               return res.json({
                                   success:true,
                                   orderList: results
