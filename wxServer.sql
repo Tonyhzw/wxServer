@@ -387,6 +387,7 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `getCode`(
    IN r_userId INTEGER,
    IN r_code TINYTEXT,
    IN r_type INTEGER,
+   IN r_key INTEGER,
    OUT success BOOLEAN
 )
 BEGIN
@@ -400,9 +401,12 @@ BEGIN
 
     select userId into t_userId  from user where userId = r_userId and type = r_type;
 
-    #SELECT t_userId, t_type;
 	if t_userId !=-1 THEN
-		insert into invite(inviteId,userId,code,type) values(r_inviteId,r_userId,r_code,r_type);
+    if r_key = 4 THEN
+		  insert into invite(inviteId,userId,code,type) values(r_inviteId,r_userId,r_code,2);
+    else
+      insert into invite(inviteId,userId,code,type) values(r_inviteId,r_userId,r_code,1);
+    end if;
         #提交事务或者回滚
 		if t_error = 1 then
 			ROLLBACK;

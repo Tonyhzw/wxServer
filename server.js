@@ -943,14 +943,11 @@ app.get('/getCode', function(req, res) {
     var userId = req.query.userId,
         type = req.query.type,
         key = req.query.key,
-        insertType = -1,
         sql = "";
-    if (key == 4) insertType = 2;
-    else if (key == 5) insertType = 1;
     var factory = require('./server/uuid.js');
     var code = factory.uuid(6, 16),
         uuid = factory.uuid(9, 10);
-    sql = "call getCode(" + mysql.escape(uuid) + "," + mysql.escape(userId) + "," + mysql.escape(code) + "," + mysql.escape(insertType) + ",@success);select @success;";
+    sql = "call getCode(" + mysql.escape(uuid) + "," + mysql.escape(userId) + "," + mysql.escape(code) + ","+mysql.escape(type)+","+mysql.escape(key) + ",@success);select @success;";
     query(sql, function(err, vals, fields) {
         if(err){
           return res.json({success:false});
