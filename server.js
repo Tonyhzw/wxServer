@@ -945,7 +945,7 @@ app.get('/getCode', function(req, res) {
         key = req.query.key,
         sql = "";
     var factory = require('./server/uuid.js');
-    var code = factory.uuid(6, 16),
+    var code = factory.uuid(9, 10),
         uuid = factory.uuid(9, 10);
     sql = "call getCode(" + mysql.escape(uuid) + "," + mysql.escape(userId) + "," + mysql.escape(code) + ","+mysql.escape(type)+","+mysql.escape(key) + ",@success);select @success;";
     query(sql, function(err, vals, fields) {

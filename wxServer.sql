@@ -456,8 +456,8 @@ BEGIN
     #解决并发数据不一致，可以使用写独占锁或者CAS机制,这里使用写独占锁
     SELECT userId,type,inviteId INTO t_userId,t_type,t_inviteId FROM invite WHERE code = r_code LIMIT 1 FOR update;
 	if t_inviteId!=-1 THEN
-      insert into user(nickname,type,inviteUserId)  values(r_username,t_type,t_userId);
-	    delete from invite where inviteId = t_inviteId;
+      insert into user(userId,nickname,type,inviteUserId)  values(r_code,r_username,t_type,t_userId);
+      delete from invite where inviteId = t_inviteId;
       #提交事务或者回滚
 	if t_error = 1 then
 		ROLLBACK;
@@ -465,7 +465,7 @@ BEGIN
 		SET r_type =-1;
 	else
      COMMIT;
-		 SET r_userId = t_userId;
+		 SET r_userId = r_code;
      SET r_type = t_type;
 	end if;
 
