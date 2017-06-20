@@ -25,11 +25,11 @@ DROP TABLE IF EXISTS `address`;
 CREATE TABLE `address` (
   `addressId` int(11) NOT NULL,
   `userId` int(11) DEFAULT NULL,
-  `username` char(30) COLLATE utf8_unicode_ci DEFAULT NULL,
-  `provinceName` char(20) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `username` TINYTEXT COLLATE utf8_unicode_ci DEFAULT NULL,
+  `provinceName` TINYTEXT COLLATE utf8_unicode_ci DEFAULT NULL,
   `postalCode` int(11) DEFAULT NULL,
-  `cityName` char(20) COLLATE utf8_unicode_ci DEFAULT NULL,
-  `countyName` char(30) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `cityName` TINYTEXT COLLATE utf8_unicode_ci DEFAULT NULL,
+  `countyName` TINYTEXT COLLATE utf8_unicode_ci DEFAULT NULL,
   `detailInfo` text COLLATE utf8_unicode_ci,
   `nationalCode` int(11) DEFAULT NULL,
   `telNumber` varchar(11) COLLATE utf8_unicode_ci DEFAULT NULL,
@@ -438,7 +438,7 @@ DELIMITER ;
 /*!50003 SET sql_mode              = 'ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION' */ ;
 DELIMITER ;;
 CREATE DEFINER=`root`@`localhost` PROCEDURE `login`(
-	  IN r_username char(20),
+	  IN r_username TINYTEXT COLLATE=utf8_unicode_ci,
     IN r_code TINYTEXT,
     OUT r_userId INTEGER,
     OUT r_type INTEGER
