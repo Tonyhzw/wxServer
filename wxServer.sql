@@ -186,7 +186,7 @@ DROP TABLE IF EXISTS `user`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `user` (
   `userId` int(11) NOT NULL AUTO_INCREMENT,
-  `nickname` tinytext COLLATE utf8_unicode_ci,
+  `nickname` TINYTEXT COLLATE utf8_unicode_ci,
   `type` int(11) DEFAULT NULL,
   `inviteUserId` int(11) NOT NULL DEFAULT '1',
   PRIMARY KEY (`userId`)
@@ -438,7 +438,7 @@ DELIMITER ;
 /*!50003 SET sql_mode              = 'ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION' */ ;
 DELIMITER ;;
 CREATE DEFINER=`root`@`localhost` PROCEDURE `login`(
-	  IN r_username TINYTEXT COLLATE=utf8_unicode_ci,
+	  IN r_username TINYTEXT charset 'utf8',
     IN r_code TINYTEXT,
     OUT r_userId INTEGER,
     OUT r_type INTEGER
@@ -454,22 +454,19 @@ BEGIN
     #开启事务
     START TRANSACTION;
     #解决并发数据不一致，可以使用写独占锁或者CAS机制,这里使用写独占锁
-    SELECT userId,type,inviteId INTO t_userId,t_type,t_inviteId FROM invite WHERE code= r_code LIMIT 1 FOR update;
-    #SELECT t_userId, t_type;
-	if t_type!=-1 THEN
+    SELECT userId,type,inviteId INTO t_userId,t_type,t_inviteId FROM invite WHERE code = r_code LIMIT 1 FOR update;
+	if t_inviteId!=-1 THEN
       insert into user(nickname,type,inviteUserId)  values(r_username,t_type,t_userId);
-      select userId,type into t_userId,t_type from user where nickname = r_username;
-      #最后删除，防止由于锁造成的失败
-	  delete from invite where inviteId = t_inviteId;
+	    delete from invite where inviteId = t_inviteId;
       #提交事务或者回滚
 	if t_error = 1 then
 		ROLLBACK;
-        SET r_userId =-1;
+    SET r_userId =-1;
 		SET r_type =-1;
 	else
-         COMMIT;
+     COMMIT;
 		 SET r_userId = t_userId;
-         SET r_type = t_type;
+     SET r_type = t_type;
 	end if;
 
   else
