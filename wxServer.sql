@@ -438,7 +438,7 @@ DELIMITER ;
 /*!50003 SET sql_mode              = 'ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION' */ ;
 DELIMITER ;;
 CREATE DEFINER=`root`@`localhost` PROCEDURE `login`(
-	IN r_username char(20),
+	  IN r_username char(20),
     IN r_code TINYTEXT,
     OUT r_userId INTEGER,
     OUT r_type INTEGER
@@ -454,7 +454,7 @@ BEGIN
     #开启事务
     START TRANSACTION;
     #解决并发数据不一致，可以使用写独占锁或者CAS机制,这里使用写独占锁
-    SELECT userId,type,inviteId INTO t_userId,t_type,t_inviteId FROM invite WHERE invite.code= r_code LIMIT 1 for update;
+    SELECT userId,type,inviteId INTO t_userId,t_type,t_inviteId FROM invite WHERE code= r_code LIMIT 1 FOR update;
     #SELECT t_userId, t_type;
 	if t_type!=-1 THEN
       insert into user(nickname,type,inviteUserId)  values(r_username,t_type,t_userId);
